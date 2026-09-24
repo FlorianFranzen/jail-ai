@@ -180,6 +180,9 @@ Force specific image layers (comma-separated). Available layers: base, rust, pyt
 .br
 Example: \-\-layers base,rust,python
 .TP
+.B \-\-no\-nix
+Ignore flake.nix and skip the nix layer, using the other detected language layers instead.
+.TP
 .B \-\-shell
 Start an interactive shell instead of running the agent command. This allows you to use the jail environment without executing the AI agent.
 .br
