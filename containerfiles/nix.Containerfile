@@ -33,7 +33,7 @@ fi
 # Ensure Nix paths are in PATH
 export PATH="/usr/local/nix-state/nix/profiles/profile/bin:/nix/var/nix/profiles/default/bin:${PATH}"
 
-# Make sure /nix provides a working Nix (volumes created from older images)
+# Make sure /nix provides a working Nix (shared/old volumes, host store)
 . /usr/local/share/jail-ai/nix-init.sh
 
 # If flake.nix exists and we are not already in a nix develop shell, enter it
@@ -81,7 +81,13 @@ EOFSEED
 # Nix init, sourced by nix-wrapper, zsh and bash (POSIX sh, cheap on the fast path)
 RUN cat > /usr/local/share/jail-ai/nix-init.sh <<'EOFINIT'
 # jail-ai nix store init
-if [ -r /usr/local/nix-seed/profile ]; then
+if [ -n "${JAIL_AI_HOST_NIX_BIN:-}" ]; then
+  # --nix-store host: the host store is mounted read-only, use the host's nix client
+  case ":$PATH:" in
+    *":$JAIL_AI_HOST_NIX_BIN:"*) ;;
+    *) export PATH="$JAIL_AI_HOST_NIX_BIN:$PATH" ;;
+  esac
+elif [ -r /usr/local/nix-seed/profile ]; then
   read -r _jail_ai_nix_profile < /usr/local/nix-seed/profile
   if [ ! -x "$_jail_ai_nix_profile/bin/nix" ] || \
      [ ! -L "/nix/var/nix/gcroots/jail-ai/${_jail_ai_nix_profile##*/}" ]; then
@@ -103,7 +109,7 @@ fi
 # Ensure Nix paths are in PATH (fallback if sourcing fails)
 export PATH="/usr/local/nix-state/nix/profiles/profile/bin:/nix/var/nix/profiles/default/bin:${PATH}"
 
-# Make sure /nix provides a working Nix (volumes created from older images)
+# Make sure /nix provides a working Nix (shared/old volumes, host store)
 . /usr/local/share/jail-ai/nix-init.sh
 EOFZSH
 
@@ -119,7 +125,7 @@ fi
 # Ensure Nix paths are in PATH (fallback if sourcing fails)
 export PATH="/usr/local/nix-state/nix/profiles/profile/bin:/nix/var/nix/profiles/default/bin:${PATH}"
 
-# Make sure /nix provides a working Nix (volumes created from older images)
+# Make sure /nix provides a working Nix (shared/old volumes, host store)
 . /usr/local/share/jail-ai/nix-init.sh
 EOFBASH
 

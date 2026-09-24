@@ -13,13 +13,21 @@ Added automatic Nix flakes support to jail-ai. When a `flake.nix` file is detect
 - Added test case for Nix project detection
 
 ### 2. Container Layer (`containerfiles/nix.Containerfile`)
-Created a new Nix development environment Containerfile that:
+The Nix development environment Containerfile:
 - Builds on top of the base image
-- Installs Nix package manager in multi-user mode
-- Enables Nix flakes and experimental features
-- Configures Nix for both system-wide and user-specific usage
-- Adds Nix environment setup to shell configs (zsh and bash)
-- Sets up proper directory permissions for the agent user
+- Installs Nix in **single-user mode** (`--no-daemon`), owned by the `agent` user, with its
+  profile in `/usr/local/nix-state` (outside the persistent `/home/agent` volume, so switching
+  between nix and non-nix images never leaves stale Nix state in `$HOME`)
+- Writes `/etc/nix/nix.conf`:
+  ```
+  experimental-features = nix-command flakes
+  max-jobs = auto
+  ```
+  Nix defaults to `max-jobs = 1` and the single-user installer writes no `nix.conf`, so without
+  this line derivations are built one at a time
+- Snapshots the installed Nix closure into `/usr/local/nix-seed` (see *Nix Store* below)
+- Adds `nix-wrapper` (enters `nix develop` when `/workspace/flake.nix` exists) and zsh/bash
+  integration, all of which source `/usr/local/share/jail-ai/nix-init.sh`
 
 ### 3. Image Layers System (`src/image_layers.rs`)
 - Added `NIX_IMAGE_NAME` constant: `localhost/jail-ai-nix:latest`
@@ -85,11 +93,30 @@ This will create a jail with:
 ## Nix Features
 
 The Nix layer includes:
-- **Nix Package Manager**: Latest version with daemon support
-- **Flakes Support**: Enabled by default via experimental features
-- **Multi-user Installation**: Proper isolation and security
-- **Shell Integration**: Automatic Nix environment setup in zsh and bash
-- **User Configuration**: Per-user Nix settings in `~/.config/nix/nix.conf`
+- **Nix Package Manager**: single-user install, no daemon inside the jail
+- **Flakes Support**: enabled system-wide in `/etc/nix/nix.conf`
+- **Parallel builds**: `max-jobs = auto`
+- **Shell Integration**: automatic Nix environment setup in zsh and bash
+
+## Nix Store
+
+`/nix` is provided according to `--nix-store` (recorded in the `jail-ai.nix-store` label):
+
+| Mode | `/nix` source | Notes |
+|------|---------------|-------|
+| `shared` (default) | global `jail-ai-nix` volume | all projects reuse downloaded and built paths |
+| `project` | `<jail>__nix` volume per project | previous default; jails without the label are treated as `project` |
+| `host` | host `/nix/store` (read-only) + host nix-daemon socket | `NIX_REMOTE=daemon`, the host nix client is put on `PATH`; builds run in the host daemon with your host user's trust level; Linux Nix hosts only |
+
+Existing jails keep their mode across recreation (`--upgrade`) unless `--nix-store` is
+given explicitly, which recreates the container when it differs.
+
+Podman only populates a named volume from the image when the volume is empty, so a shared or
+older volume may lack the Nix version of the current image. `nix-init.sh` checks this on
+every shell and wrapper start (a single `stat`), and `jail-ai-nix-seed` then copies the missing
+paths from `/usr/local/nix-seed`, registers them with `nix-store --load-db` and pins them with a
+GC root in `/nix/var/nix/gcroots/jail-ai/`, so `nix-collect-garbage` in one jail never removes
+another image's Nix. Removing a jail never removes the `jail-ai-nix` volume.
 
 ## Example Use Cases
 
@@ -141,18 +168,17 @@ cargo test
 ## Future Enhancements
 
 Potential improvements:
-- Cache Nix store between jail recreations
-- Support for `shell.nix` (classic Nix shells)
 - Nix-specific resource limits
 - Binary cache configuration
+- Support for `shell.nix` (classic Nix shells)
 - Nix channel management
 
 ## Notes
 
 - Nix flakes are **experimental** but widely used in the Nix community
-- The Nix daemon runs in the container for proper multi-user support
-- Nix store is stored in the container (not persistent between recreations by default)
-- For persistent Nix store, use volume mounts
+- There is no Nix daemon inside the jail; the `agent` user owns the store (or, with
+  `--nix-store host`, the host daemon does)
+- The Nix store persists in a volume across jail recreations (see *Nix Store*)
 
 ## Compatibility
 

@@ -155,6 +155,13 @@ impl JailBackend for ContainerAppBackend {
         debug!("Creating container with args: {:?}", args);
         run_command(&mut cmd).await?;
 
+        if config.nix_store == crate::config::NixStoreMode::Host {
+            warn!(
+                "--nix-store host is not supported by the apple/container backend, Nix in '{}' uses the container's own store",
+                config.name
+            );
+        }
+
         if config.block_host {
             warn!(
                 "eBPF host blocking is not supported on macOS (apple/container backend), skipping for container '{}'",
@@ -422,6 +429,7 @@ impl JailBackend for ContainerAppBackend {
             no_nix: false,
             block_host: false,
             podman_socket: false,
+            nix_store: crate::config::NixStoreMode::default(),
         })
     }
 }

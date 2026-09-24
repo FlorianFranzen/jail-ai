@@ -184,6 +184,11 @@ impl JailBuilder {
         self
     }
 
+    pub fn nix_store(mut self, nix_store: crate::config::NixStoreMode) -> Self {
+        self.config.nix_store = nix_store;
+        self
+    }
+
     pub fn build(self) -> JailManager {
         JailManager::new(self.config)
     }

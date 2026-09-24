@@ -7,7 +7,7 @@ use crate::git_gpg::{
 use crate::jail::{JailBuilder, JailManager};
 use crate::jail_setup::{mount_agent_configs, setup_default_environment};
 use std::path::{Path, PathBuf};
-use tracing::{info, warn};
+use tracing::{debug, info, warn};
 
 pub use crate::jail_detection::{
     auto_detect_jail_name, extract_agent_name, find_jails_for_directory, get_git_root,
@@ -69,6 +69,8 @@ pub struct AgentCommandParams {
     pub verbose: bool,
     pub auth: bool,
     pub no_nix: bool,
+    /// Explicit --nix-store choice (None = keep existing container's mode / use default)
+    pub nix_store: Option<crate::config::NixStoreMode>,
     pub no_block_host: bool,
     pub podman: bool,
     pub tui: bool,
@@ -226,10 +228,24 @@ pub async fn run_ai_agent_command(
     // --auth should force container recreation (for networking) but not layer rebuilding
     let mut should_recreate = params.upgrade || !params.force_layers.is_empty() || params.auth;
 
+    // Inspect existing container once (network, eBPF and Nix store settings)
+    let existing_config = if jail_exists {
+        temp_jail.inspect().await.ok()
+    } else {
+        None
+    };
+
+    // Keep the existing container's Nix store unless --nix-store was given explicitly,
+    // so recreating (e.g. --upgrade) never silently swaps /nix for another store
+    let nix_store = params
+        .nix_store
+        .or(existing_config.as_ref().map(|c| c.nix_store))
+        .unwrap_or_default();
+    debug!("Resolved Nix store mode: {}", nix_store);
+
     // Check for network mode mismatch when container exists
     if jail_exists && !should_recreate {
-        // Inspect existing container to get its network configuration
-        if let Ok(existing_config) = temp_jail.inspect().await {
+        if let Some(existing_config) = &existing_config {
             // Determine desired network mode based on --auth or --host-network flags
             let desired_host_network = params.auth || params.host_network;
             let current_host_network = existing_config.network.host;
@@ -267,6 +283,22 @@ pub async fn run_ai_agent_command(
                 }
                 info!("Container will be recreated with the correct eBPF blocking configuration");
                 should_recreate = true;
+            }
+
+            // Check for Nix store mode mismatch (only when explicitly requested,
+            // so legacy per-project jails are not recreated behind the user's back,
+            // and only for Nix images, which are the only ones carrying the label)
+            let existing_uses_nix =
+                crate::backend::podman::PodmanBackend::image_uses_nix(&existing_config.base_image);
+            if let (Some(desired_nix_store), true) = (params.nix_store, existing_uses_nix) {
+                if desired_nix_store != existing_config.nix_store {
+                    info!(
+                        "Nix store mode mismatch detected: container uses '{}' but --nix-store {} was requested",
+                        existing_config.nix_store, desired_nix_store
+                    );
+                    info!("Container will be recreated with the requested Nix store mode");
+                    should_recreate = true;
+                }
             }
         }
     }
@@ -594,6 +626,9 @@ pub async fn run_ai_agent_command(
 
         // Set no_nix flag
         builder = builder.no_nix(params.no_nix);
+
+        // Set Nix store mode (shared global volume unless requested otherwise)
+        builder = builder.nix_store(nix_store);
 
         // Set block_host flag (inverted: !no_block_host means blocking is enabled)
         builder = builder.block_host(!params.no_block_host);

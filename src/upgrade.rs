@@ -108,6 +108,8 @@ pub async fn upgrade_single_jail(
         builder = builder.cpu_quota(cpu);
     }
 
+    builder = builder.nix_store(old_config.nix_store);
+
     let new_jail = builder.build();
     new_jail.create().await?;
 
