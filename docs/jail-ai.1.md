@@ -384,6 +384,8 @@ Jail names are automatically generated from the current directory path using a h
 ### Nix Flakes Support
 When a `flake.nix` file is detected in the workspace, jail-ai automatically loads the Nix development environment using 'nix develop' when entering the jail.
 
+Nix is configured with `max-jobs = auto`, so independent derivations are built in parallel (Nix itself defaults to `max-jobs = 1`).
+
 ## AUTHORS
 
 Cyril Levis <git@levis.name>

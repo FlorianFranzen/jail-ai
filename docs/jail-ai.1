@@ -541,6 +541,8 @@ Resource limits (\fB\-\-memory\fR, \fB\-\-cpu\fR) help prevent runaway processes
 Read-only mounts (\-m source:target:ro) prevent accidental modifications.
 .SS Nix Flakes Support
 When a flake.nix file is detected in the workspace, jail-ai automatically loads the Nix development environment using 'nix develop' when entering the jail.
+.PP
+Nix builds independent derivations in parallel (max-jobs = auto).
 .SH AUTHORS
 Cyril Levis <git@levis.name>
 .SH COPYRIGHT

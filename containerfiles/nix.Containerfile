@@ -43,9 +43,9 @@ else
 fi
 EOFWRAPPER
 
-# Enable Nix flakes and other experimental features
+# Enable Nix flakes and parallel builds (Nix defaults to max-jobs = 1; the installer sets nothing)
 RUN mkdir -p /etc/nix && \
-    echo "experimental-features = nix-command flakes" > /etc/nix/nix.conf
+    printf '%s\n' "experimental-features = nix-command flakes" "max-jobs = auto" > /etc/nix/nix.conf
 
 # Create nix.zsh configuration script
 RUN cat > /usr/local/share/jail-ai/nix.zsh <<'EOFZSH'
