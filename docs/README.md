@@ -49,7 +49,7 @@ man ./docs/jail-ai.1
 ### What they document
 
 - All commands: `create`, `remove`, `status`, `save`, `agents`, `list`, `clean-all`, `upgrade`, `completions`
-- Global options (`--verbose`, `--quiet`)
+- Global options (`-v`/`--verbose` for debug, `-q`/`--quiet` for errors only; `RUST_LOG` overrides both)
 - Common options (`--backend`, `--image`, `--mount`, `--env`, `--memory`, `--cpu`, ...)
 - Agent options (`--agent-configs`, `--git-gpg`, `--shell`, `--auth`, `--isolated`, `--nix-store`, ...)
 - Examples, files and directories, environment variables

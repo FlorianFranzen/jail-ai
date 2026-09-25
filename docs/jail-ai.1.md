@@ -79,7 +79,7 @@ Upgrade a jail by recreating it with the latest image version. Use `--all` to up
 | Option | Description |
 |--------|-------------|
 | `-v`, `--verbose` | Enable verbose logging with DEBUG level output. Shows detailed information about operations and backend commands. |
-| `-q`, `--quiet` | Quiet mode - suppress INFO logs, only show warnings and errors. Conflicts with `--verbose`. |
+| `-q`, `--quiet` | Quiet mode - only show errors. Warnings are shown by default; `-v` adds debug logging. Conflicts with `--verbose`. Set `RUST_LOG` (e.g. `RUST_LOG=jail_ai=info`) to override the level entirely. |
 
 ## COMMON OPTIONS
 

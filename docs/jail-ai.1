@@ -79,7 +79,9 @@ Start an interactive shell in an existing jail. If no name is provided, starts a
 Enable verbose logging with DEBUG level output. Shows detailed information about operations and backend commands.
 .TP
 .BR \-q ", " \-\-quiet
-Quiet mode - suppress INFO logs, only show warnings and errors. Conflicts with \fB\-\-verbose\fR.
+Quiet mode - only show errors. Warnings are shown by default; \fB\-v\fR adds debug logging. Conflicts with \fB\-\-verbose\fR.
+.br
+Set \fBRUST_LOG\fR (e.g. RUST_LOG=jail_ai=info) to override the level entirely.
 .SH COMMON OPTIONS
 The following options are available for the \fBcreate\fR and \fBagents\fR commands:
 .TP

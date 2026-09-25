@@ -28,14 +28,23 @@ pub use tracing_subscriber::layer::SubscriberExt;
 pub use tracing_subscriber::util::SubscriberInitExt;
 pub use upgrade::{resolve_jail_name, upgrade_all_jails, upgrade_single_jail};
 
+/// Pick the tracing filter for the requested verbosity.
+///
+/// `warn` is the default on purpose (e40b54f: "INFO logs were overwhelming
+/// during normal usage"), so `--quiet` means one level below that rather than
+/// suppressing INFO, which is already hidden. `RUST_LOG` overrides all of this.
+fn log_filter(verbose: bool, quiet: bool) -> &'static str {
+    match (verbose, quiet) {
+        (true, _) => "jail_ai=debug",
+        (false, true) => "jail_ai=error",
+        (false, false) => "jail_ai=warn",
+    }
+}
+
 pub async fn run_cli() -> Result<()> {
     let cli = Cli::parse();
 
-    let filter = if cli.verbose {
-        "jail_ai=debug"
-    } else {
-        "jail_ai=warn"
-    };
+    let filter = log_filter(cli.verbose, cli.quiet);
 
     tracing_subscriber::registry()
         .with(
@@ -583,4 +592,23 @@ async fn create_default_jail(
     builder = builder.bind_mount(workspace_dir, "/workspace", false);
 
     Ok(builder.build())
+}
+
+#[cfg(test)]
+mod log_filter_tests {
+    use super::log_filter;
+
+    #[test]
+    fn quiet_is_one_level_below_the_default() {
+        // the default is warn, so --quiet has to mean errors only to be useful
+        assert_eq!(log_filter(false, false), "jail_ai=warn");
+        assert_eq!(log_filter(false, true), "jail_ai=error");
+    }
+
+    #[test]
+    fn verbose_wins_and_gives_debug() {
+        assert_eq!(log_filter(true, false), "jail_ai=debug");
+        // clap rejects -q -v together, but the helper must still be total
+        assert_eq!(log_filter(true, true), "jail_ai=debug");
+    }
 }

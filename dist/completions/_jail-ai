@@ -17,8 +17,8 @@ _jail-ai() {
     _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 ":: :_jail-ai_commands" \
@@ -63,8 +63,8 @@ host\:"Use the host'\''s Nix store read-only and build through the host nix-daem
 '--podman[Enable Podman-in-Podman by mounting the host'\''s Podman socket This allows running containers inside the jail (useful for MCP agents)]' \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
 '::name -- Name of the jail (auto-generated from current directory if not provided):_default' \
@@ -77,8 +77,8 @@ _arguments "${_arguments_options[@]}" : \
 '--volume[Remove associated volume (persistent data)]' \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '::name -- Name of the jail (auto-detected from current directory if not provided):_default' \
@@ -88,8 +88,8 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '::name -- Name of the jail (auto-detected from current directory if not provided):_default' \
@@ -101,8 +101,8 @@ _arguments "${_arguments_options[@]}" : \
 '--output=[Output file path]:OUTPUT:_files' \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '::name -- Name of the jail (auto-detected from current directory if not provided):_default' \
@@ -143,8 +143,8 @@ host\:"Use the host'\''s Nix store read-only and build through the host nix-daem
 '--tui[Launch the TUI with a tab for the agent and a tab for an interactive shell]' \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help (see more with '\''--help'\'')]' \
 '--help[Print help (see more with '\''--help'\'')]' \
 ":: :_jail-ai__agents_commands" \
@@ -161,8 +161,8 @@ host\:"Use the host'\''s Nix store read-only and build through the host nix-daem
 _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '*::args:_default' \
@@ -172,8 +172,8 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '*::args:_default' \
@@ -183,8 +183,8 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '*::args:_default' \
@@ -194,8 +194,8 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '*::args:_default' \
@@ -205,8 +205,8 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '*::args:_default' \
@@ -216,8 +216,8 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '*::args:_default' \
@@ -227,8 +227,8 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '*::args:_default' \
@@ -238,8 +238,8 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '*::args:_default' \
@@ -249,8 +249,8 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '*::args:_default' \
@@ -260,8 +260,8 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '*::args:_default' \
@@ -339,8 +339,8 @@ _arguments "${_arguments_options[@]}" : \
 '--current[Show only jails for current directory]' \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 && ret=0
@@ -354,8 +354,8 @@ _arguments "${_arguments_options[@]}" : \
 '--volume[Remove associated volumes (persistent data)]' \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 && ret=0
@@ -369,8 +369,8 @@ _arguments "${_arguments_options[@]}" : \
 '--all[Upgrade all jails]' \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 '::name -- Name of the jail (auto-detected from current directory if not provided):_default' \
@@ -380,8 +380,8 @@ _arguments "${_arguments_options[@]}" : \
 _arguments "${_arguments_options[@]}" : \
 '-v[Enable verbose logging]' \
 '--verbose[Enable verbose logging]' \
-'(-v --verbose)-q[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
-'(-v --verbose)--quiet[Quiet mode (suppress INFO logs, only show warnings and errors)]' \
+'(-v --verbose)-q[Quiet mode (only show errors; warnings are shown by default)]' \
+'(-v --verbose)--quiet[Quiet mode (only show errors; warnings are shown by default)]' \
 '-h[Print help]' \
 '--help[Print help]' \
 ':shell -- Shell to generate completions for:(bash elvish fish powershell zsh)' \

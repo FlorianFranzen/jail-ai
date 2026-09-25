@@ -123,7 +123,7 @@ pub struct Cli {
     #[arg(short, long, global = true)]
     pub verbose: bool,
 
-    /// Quiet mode (suppress INFO logs, only show warnings and errors)
+    /// Quiet mode (only show errors; warnings are shown by default)
     #[arg(short, long, global = true, conflicts_with = "verbose")]
     pub quiet: bool,
 }
