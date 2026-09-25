@@ -362,7 +362,9 @@ impl PodmanBackend {
         let base_name = Self::extract_base_name(&config.name);
 
         // Nix store for containers using Nix (per-project, shared or host, see NixStoreMode)
-        if Self::image_uses_nix(&config.base_image) {
+        // Prefer the fact reported by image resolution; fall back to the image
+        // name for paths that only have that (custom images, upgrade, inspect).
+        if config.uses_nix || Self::image_uses_nix(&config.base_image) {
             args.extend(nix_run_args(config, &base_name, &NixHostPaths::detect())?);
         }
 
@@ -691,12 +693,16 @@ impl JailBackend for PodmanBackend {
             } else {
                 debug!("Using local image: {}", config.base_image);
             }
-            config.base_image.clone()
+            crate::image_layers::ResolvedImage {
+                name: config.base_image.clone(),
+                uses_nix: config.uses_nix,
+            }
         };
 
         // Create and start the container with the determined image
         let mut modified_config = config.clone();
-        modified_config.base_image = actual_image.clone();
+        modified_config.base_image = actual_image.name.clone();
+        modified_config.uses_nix = actual_image.uses_nix;
         let args = self.build_run_args(&modified_config)?;
         let mut cmd = Command::new("podman");
         cmd.args(&args);
@@ -1104,10 +1110,15 @@ impl JailBackend for PodmanBackend {
 
         // Extract Nix store mode from label (jails created before the label existed
         // always used a per-project volume)
-        let nix_store = container["Config"]["Labels"][NIX_STORE_LABEL]
-            .as_str()
+        let nix_store_label = container["Config"]["Labels"][NIX_STORE_LABEL].as_str();
+        let nix_store = nix_store_label
             .and_then(NixStoreMode::from_label)
             .unwrap_or(NixStoreMode::Project);
+
+        // The label is only ever written for nix-backed jails, so its presence
+        // is a reliable signal even when the image tag has no `nix` component
+        // (isolated images are tagged with a workspace hash).
+        let uses_nix = nix_store_label.is_some();
 
         Ok(JailConfig {
             name: name.to_string(),
@@ -1131,6 +1142,7 @@ impl JailBackend for PodmanBackend {
             block_host,
             podman_socket: false, // Not persisted in container metadata
             nix_store,
+            uses_nix,
         })
     }
 }
@@ -1268,6 +1280,86 @@ mod tests {
         let config = JailConfig {
             name: "jail__proj__abc12345__claude".to_string(),
             base_image: "localhost/jail-ai-agent-claude:base-nix".to_string(),
+            ..Default::default()
+        };
+        let args = PodmanBackend::new().build_run_args(&config).unwrap();
+
+        assert!(contains_pair(&args, "-v", "jail-ai-nix:/nix"));
+    }
+
+    #[test]
+    fn isolated_nix_image_gets_nix_store_from_uses_nix() {
+        // --isolated tags the final agent image with a workspace hash, so the
+        // name carries no `nix` component and image_uses_nix() cannot see it.
+        let image = "localhost/jail-ai-agent-claude:a1b2c3d4";
+        assert!(!PodmanBackend::image_uses_nix(image));
+
+        let config = JailConfig {
+            name: "jail__proj__a1b2c3d4__claude".to_string(),
+            base_image: image.to_string(),
+            nix_store: NixStoreMode::Shared,
+            isolated: true,
+            uses_nix: true,
+            block_host: false,
+            ..Default::default()
+        };
+        let args = PodmanBackend::new().build_run_args(&config).unwrap();
+
+        assert!(contains_pair(&args, "-v", "jail-ai-nix:/nix"));
+        assert!(contains_pair(
+            &args,
+            "--label",
+            &format!("{NIX_STORE_LABEL}=shared")
+        ));
+    }
+
+    #[test]
+    fn isolated_nix_image_honours_project_mode() {
+        let config = JailConfig {
+            name: "jail__proj__a1b2c3d4__claude".to_string(),
+            base_image: "localhost/jail-ai-agent-claude:a1b2c3d4".to_string(),
+            nix_store: NixStoreMode::Project,
+            isolated: true,
+            uses_nix: true,
+            block_host: false,
+            ..Default::default()
+        };
+        let args = PodmanBackend::new().build_run_args(&config).unwrap();
+
+        assert!(contains_pair(&args, "-v", "jail__proj__a1b2c3d4__nix:/nix"));
+    }
+
+    #[test]
+    fn isolated_non_nix_image_still_gets_no_nix_store() {
+        // The fix must not hand /nix to every isolated jail: without uses_nix
+        // and without a nix-ish image name, nothing is mounted.
+        let config = JailConfig {
+            name: "jail__proj__a1b2c3d4__claude".to_string(),
+            base_image: "localhost/jail-ai-agent-claude:a1b2c3d4".to_string(),
+            nix_store: NixStoreMode::Shared,
+            isolated: true,
+            uses_nix: false,
+            block_host: false,
+            ..Default::default()
+        };
+        let args = PodmanBackend::new().build_run_args(&config).unwrap();
+
+        assert!(!args.iter().any(|a| a.ends_with(":/nix")));
+        assert!(!args.iter().any(|a| a.starts_with(NIX_STORE_LABEL)));
+    }
+
+    #[test]
+    fn preresolved_image_keeps_caller_supplied_uses_nix() {
+        // Upgrade recreates from an already-resolved image name, so create()
+        // takes the custom-image path and cannot re-detect nix. It must not
+        // clobber what the caller carried over from the old jail's label.
+        let config = JailConfig {
+            name: "jail__proj__a1b2c3d4__claude".to_string(),
+            base_image: "localhost/jail-ai-agent-claude:a1b2c3d4".to_string(),
+            nix_store: NixStoreMode::Shared,
+            use_layered_images: false,
+            uses_nix: true,
+            block_host: false,
             ..Default::default()
         };
         let args = PodmanBackend::new().build_run_args(&config).unwrap();

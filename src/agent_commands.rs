@@ -287,9 +287,23 @@ pub async fn run_ai_agent_command(
 
             // Check for Nix store mode mismatch (only when explicitly requested,
             // so legacy per-project jails are not recreated behind the user's back,
-            // and only for Nix images, which are the only ones carrying the label)
-            let existing_uses_nix =
-                crate::backend::podman::PodmanBackend::image_uses_nix(&existing_config.base_image);
+            // and only for jails that actually have a /nix to move)
+            //
+            // The project itself is the ground truth here, not the container: an
+            // --isolated jail is tagged with a workspace hash, so neither the
+            // image name nor a missing label tells us whether nix is in play.
+            // Fall back to the container's own signals for jails whose workspace
+            // is no longer where we are (custom images, unusual layouts).
+            let workspace_dir = get_git_root().unwrap_or_else(|| cwd.clone());
+            let existing_uses_nix = crate::project_detection::detect_project_type_with_options(
+                &workspace_dir,
+                params.no_nix,
+            )
+            .uses_nix()
+                || existing_config.uses_nix
+                || crate::backend::podman::PodmanBackend::image_uses_nix(
+                    &existing_config.base_image,
+                );
             if let (Some(desired_nix_store), true) = (params.nix_store, existing_uses_nix) {
                 if desired_nix_store != existing_config.nix_store {
                     info!(

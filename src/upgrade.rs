@@ -109,6 +109,7 @@ pub async fn upgrade_single_jail(
     }
 
     builder = builder.nix_store(old_config.nix_store);
+    builder = builder.uses_nix(old_config.uses_nix);
 
     let new_jail = builder.build();
     new_jail.create().await?;
