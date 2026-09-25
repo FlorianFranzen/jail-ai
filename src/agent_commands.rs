@@ -304,15 +304,28 @@ pub async fn run_ai_agent_command(
                 || crate::backend::podman::PodmanBackend::image_uses_nix(
                     &existing_config.base_image,
                 );
-            if let (Some(desired_nix_store), true) = (params.nix_store, existing_uses_nix) {
-                if desired_nix_store != existing_config.nix_store {
-                    info!(
-                        "Nix store mode mismatch detected: container uses '{}' but --nix-store {} was requested",
-                        existing_config.nix_store, desired_nix_store
-                    );
-                    info!("Container will be recreated with the requested Nix store mode");
-                    should_recreate = true;
+            match (params.nix_store, existing_uses_nix) {
+                (Some(desired_nix_store), true) => {
+                    if desired_nix_store != existing_config.nix_store {
+                        // warn!, not info!: the default filter is jail_ai=warn, and
+                        // recreating the container is not something to do silently
+                        warn!(
+                            "Nix store mode mismatch detected: container uses '{}' but --nix-store {} was requested",
+                            existing_config.nix_store, desired_nix_store
+                        );
+                        warn!("Container will be recreated with the requested Nix store mode");
+                        should_recreate = true;
+                    }
                 }
+                (Some(desired_nix_store), false) => {
+                    // Asking for a store mode on a jail with no nix layer does
+                    // nothing. Say so rather than dropping the flag on the floor.
+                    warn!(
+                        "Ignoring --nix-store {}: jail '{}' does not use the nix layer",
+                        desired_nix_store, jail_name
+                    );
+                }
+                (None, _) => {}
             }
         }
     }
