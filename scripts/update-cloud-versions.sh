@@ -167,7 +167,7 @@ echo
 echo "Next steps:"
 echo "1. Review the changes: git diff containerfiles/"
 echo "2. Test the builds: cargo build"
-echo "3. Rebuild cloud layers: jail-ai claude --cloud --upgrade --force-layers aws,gcp"
+echo "3. Rebuild cloud layers: jail-ai agents --cloud --upgrade --layers aws,gcp claude"
 echo "4. Commit changes: git add containerfiles/ && git commit -m '⬆️ Update cloud tool versions'"
 echo
 echo "Note: Some versions require manual updates (marked with ⚠)."

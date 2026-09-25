@@ -38,7 +38,7 @@ The `jail-ai.Containerfile` is an example of a custom layer that can be added to
 
 3. Run jail-ai as normal - it will automatically detect and build the custom layer:
    ```bash
-   jail-ai claude  # The custom layer will be built automatically
+   jail-ai agents claude  # The custom layer will be built automatically
    ```
 
 ### Important Notes
@@ -65,13 +65,13 @@ This means projects with the same language stack + custom layer will share the s
 To force rebuild just the custom layer:
 
 ```bash
-jail-ai claude --upgrade --force-layers custom
+jail-ai agents --upgrade --layers custom claude
 ```
 
 To rebuild everything including the custom layer:
 
 ```bash
-jail-ai claude --upgrade
+jail-ai agents --upgrade claude
 ```
 
 ### Examples
@@ -148,5 +148,5 @@ WORKDIR /workspace
 
 **Solution**: Use `--upgrade` flag to force rebuild:
 ```bash
-jail-ai claude --upgrade
+jail-ai agents --upgrade claude
 ```

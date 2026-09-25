@@ -38,7 +38,7 @@ Use the provided update script to fetch and update all versions automatically:
 git diff containerfiles/
 
 # Rebuild layers
-jail-ai claude --cloud --upgrade --force-layers aws,gcp
+jail-ai agents --cloud --upgrade --layers aws,gcp claude
 ```
 
 The script automatically fetches the latest versions from:
@@ -99,16 +99,16 @@ To force rebuild of cloud layers:
 
 ```bash
 # Rebuild all layers
-jail-ai claude --cloud --upgrade
+jail-ai agents --cloud --upgrade claude
 
 # Rebuild only AWS layer
-jail-ai claude --cloud --upgrade --force-layers aws
+jail-ai agents --cloud --upgrade --layers aws claude
 
 # Rebuild only GCP layer
-jail-ai claude --cloud --upgrade --force-layers gcp
+jail-ai agents --cloud --upgrade --layers gcp claude
 
 # Rebuild both cloud layers
-jail-ai claude --cloud --upgrade --force-layers aws,gcp
+jail-ai agents --cloud --upgrade --layers aws,gcp claude
 ```
 
 ## Checking Installed Versions
@@ -209,7 +209,7 @@ podman image inspect localhost/jail-ai-aws:latest \
 Force rebuild the layer:
 
 ```bash
-jail-ai claude --cloud --upgrade --force-layers aws
+jail-ai agents --cloud --upgrade --layers aws claude
 ```
 
 ### Version conflict

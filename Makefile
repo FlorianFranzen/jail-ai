@@ -70,7 +70,7 @@ update-cloud-versions: ## Update cloud provider tool versions to latest
 
 rebuild-cloud-layers: ## Force rebuild cloud layers with updated versions
 	@echo "Rebuilding cloud layers..."
-	cargo run -- claude --cloud --upgrade --force-layers aws,gcp --verbose
+	cargo run -- -v agents --cloud --upgrade --layers aws,gcp claude
 
 completions: build ## Generate shell completions into dist/completions/ (native build)
 	@mkdir -p dist/completions

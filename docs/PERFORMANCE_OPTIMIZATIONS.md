@@ -82,7 +82,7 @@ Used automatically in `check_layers_need_rebuild()` to verify all layers at once
 ### Enable
 ```bash
 export JAIL_AI_PARALLEL_BUILD=1
-jail-ai claude
+jail-ai agents claude
 ```
 
 ### Description
@@ -118,7 +118,7 @@ Disabled by default for stability. Language layers must only depend on the base 
 ### Enable
 ```bash
 export JAIL_AI_PREFETCH=1
-jail-ai claude
+jail-ai agents claude
 ```
 
 ### Description
@@ -158,7 +158,7 @@ For maximum performance, you can combine multiple optimizations:
 # All optimizations enabled
 export JAIL_AI_PARALLEL_BUILD=1
 export JAIL_AI_PREFETCH=1
-jail-ai claude
+jail-ai agents claude
 ```
 
 ### Expected Speedup
@@ -176,7 +176,7 @@ Enable verbose logging to see optimization details:
 
 ```bash
 export RUST_LOG=jail_ai=debug
-jail-ai claude --verbose
+jail-ai agents --verbose claude
 ```
 
 Look for these log messages:
@@ -195,13 +195,13 @@ To benchmark the improvements:
 cargo install hyperfine
 
 # Benchmark without optimizations
-hyperfine --warmup 1 'jail-ai claude --no-workspace -- --version'
+hyperfine --warmup 1 'jail-ai agents --no-workspace claude -- --version'
 
 # Benchmark with parallel build
-JAIL_AI_PARALLEL_BUILD=1 hyperfine --warmup 1 'jail-ai claude --no-workspace -- --version'
+JAIL_AI_PARALLEL_BUILD=1 hyperfine --warmup 1 'jail-ai agents --no-workspace claude -- --version'
 
 # Benchmark with all optimizations
-JAIL_AI_PARALLEL_BUILD=1 JAIL_AI_PREFETCH=1 hyperfine --warmup 1 'jail-ai claude --no-workspace -- --version'
+JAIL_AI_PARALLEL_BUILD=1 JAIL_AI_PREFETCH=1 hyperfine --warmup 1 'jail-ai agents --no-workspace claude -- --version'
 ```
 
 ## Troubleshooting
@@ -213,7 +213,7 @@ If you experience issues with parallel building:
 ```bash
 # Disable parallel build
 unset JAIL_AI_PARALLEL_BUILD
-jail-ai claude
+jail-ai agents claude
 ```
 
 ### Pre-fetch Using Too Much CPU
@@ -223,7 +223,7 @@ If pre-fetching is consuming too many resources:
 ```bash
 # Disable pre-fetching
 unset JAIL_AI_PREFETCH
-jail-ai claude
+jail-ai agents claude
 ```
 
 ### Cache Issues

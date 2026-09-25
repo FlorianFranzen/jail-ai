@@ -89,7 +89,7 @@ All added functions are actively used:
 
 ## Example User Experience
 
-### Scenario: User upgrades jail-ai binary and runs `jail-ai claude`
+### Scenario: User upgrades jail-ai binary and runs `jail-ai agents claude`
 
 ```
 🔄 Update available for your jail environment!

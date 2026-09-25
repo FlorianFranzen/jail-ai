@@ -17,20 +17,8 @@ jail-ai \- AI Agent Jail Manager for sandboxing AI agents using podman
 .B jail-ai save
 [\fINAME\fR] \fB\-o\fR|\fB\-\-output\fR \fIFILE\fR
 .br
-.B jail-ai claude
-[\fIOPTIONS\fR] [\fB\-\-\fR \fIARGS\fR...]
-.br
-.B jail-ai copilot
-[\fIOPTIONS\fR] [\fB\-\-\fR \fIARGS\fR...]
-.br
-.B jail-ai cursor
-[\fIOPTIONS\fR] [\fB\-\-\fR \fIARGS\fR...]
-.br
-.B jail-ai gemini
-[\fIOPTIONS\fR] [\fB\-\-\fR \fIARGS\fR...]
-.br
-.B jail-ai codex
-[\fIOPTIONS\fR] [\fB\-\-\fR \fIARGS\fR...]
+.B jail-ai agents
+[\fIOPTIONS\fR] \fIAGENT\fR [\fB\-\-\fR \fIARGS\fR...]
 .br
 .B jail-ai list
 [\fB\-c\fR|\fB\-\-current\fR]
@@ -193,7 +181,7 @@ Existing jails keep their mode unless this flag is given.
 .B \-\-shell
 Start an interactive shell instead of running the agent command. This allows you to use the jail environment without executing the AI agent.
 .br
-Example: jail-ai claude \-\-shell
+Example: jail-ai agents \-\-shell claude
 .SH EXAMPLES
 .SS Basic Usage
 .PP
@@ -236,61 +224,61 @@ jail-ai shell my-agent
 Quick start Claude Code (minimal auth - only API keys):
 .RS
 .nf
-jail-ai claude
+jail-ai agents claude
 .fi
 .RE
 .PP
 Start Claude with full config directory and git/GPG support:
 .RS
 .nf
-jail-ai claude --claude-dir --git-gpg
+jail-ai agents --claude-dir --git-gpg claude
 .fi
 .RE
 .PP
 Start GitHub Copilot with authentication:
 .RS
 .nf
-jail-ai copilot --copilot-dir
+jail-ai agents --copilot-dir copilot
 .fi
 .RE
 .PP
 Start Cursor Agent with authentication:
 .RS
 .nf
-jail-ai cursor --cursor-dir
+jail-ai agents --cursor-dir cursor
 .fi
 .RE
 .PP
 Start Gemini CLI with authentication:
 .RS
 .nf
-jail-ai gemini --gemini-dir
+jail-ai agents --gemini-dir gemini
 .fi
 .RE
 .PP
 Start Codex CLI with API key authentication:
 .RS
 .nf
-jail-ai codex --codex-dir
+jail-ai agents --codex-dir codex
 .fi
 .RE
 .PP
 Pass arguments to the AI agent (including flags with hyphens):
 .RS
 .nf
-jail-ai claude -- chat "help me debug this code"
-jail-ai claude -- --help
-jail-ai claude -- --version
-jail-ai copilot -- suggest "write tests"
-jail-ai gemini -- --model gemini-pro "explain this code"
+jail-ai agents claude -- chat "help me debug this code"
+jail-ai agents claude -- --help
+jail-ai agents claude -- --version
+jail-ai agents copilot -- suggest "write tests"
+jail-ai agents gemini -- --model gemini-pro "explain this code"
 .fi
 .RE
 .PP
 Start an interactive shell in an agent jail (without running the agent):
 .RS
 .nf
-jail-ai claude --shell
-jail-ai copilot --copilot-dir --shell
+jail-ai agents --shell claude
+jail-ai agents --copilot-dir --shell copilot
 .fi
 .RE
 .SS Configuration Mounting
@@ -305,7 +293,7 @@ jail-ai create my-agent --agent-configs --git-gpg
 Start Claude with custom workspace path:
 .RS
 .nf
-jail-ai claude --workspace-path /app
+jail-ai agents --workspace-path /app claude
 .fi
 .RE
 .SS Resource Limits

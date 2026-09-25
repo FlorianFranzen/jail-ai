@@ -12,11 +12,7 @@ jail-ai create [NAME] [OPTIONS]
 jail-ai remove [NAME] [-f|--force] [-v|--volume]
 jail-ai status [NAME]
 jail-ai save [NAME] -o|--output FILE
-jail-ai claude [OPTIONS] [-- ARGS...]
-jail-ai copilot [OPTIONS] [-- ARGS...]
-jail-ai cursor [OPTIONS] [-- ARGS...]
-jail-ai gemini [OPTIONS] [-- ARGS...]
-jail-ai codex [OPTIONS] [-- ARGS...]
+jail-ai agents [OPTIONS] AGENT [-- ARGS...]
 jail-ai list [-c|--current]
 jail-ai clean-all [-f|--force] [-v|--volume]
 jail-ai upgrade [NAME] [--all] [OPTIONS]
@@ -28,7 +24,7 @@ jail-ai upgrade [NAME] [--all] [OPTIONS]
 
 The tool automatically builds and manages custom container images with development tools, handles workspace mounting, manages authentication credentials, and provides granular control over resource limits and network access.
 
-Use AI agent commands (e.g., `jail-ai claude`, `jail-ai copilot`) to quickly start agents in jails, or use `jail-ai create` to set up custom jails.
+Use AI agent commands (e.g., `jail-ai agents claude`, `jail-ai agents copilot`) to quickly start agents in jails, or use `jail-ai create` to set up custom jails.
 
 ## COMMANDS
 
@@ -111,7 +107,7 @@ The following options are available for the **create**, **claude**, **copilot**,
 | `--git-gpg` | Enable git and GPG configuration mapping. Mounts `~/.gnupg` directory, all GPG agent sockets (`/run/user/<UID>/gnupg/*`), and creates or mounts git configuration with user identity and signing settings. If `gpg.format=ssh` is configured, also mounts the SSH allowed signers file. This is opt-in (disabled by default) for security. |
 | `--force-rebuild` | Force rebuild of the default image, even if it already exists. Useful after modifying `~/.config/jail-ai/Containerfile`. |
 | `--layers LAYER[,LAYER...]` | Force specific image layers (comma-separated). Available layers: base, rust, python, nodejs, golang, java, php, cpp, csharp, nix, kubernetes, terraform, and agent-specific layers (agent-claude, agent-copilot, agent-cursor, agent-gemini, agent-codex). Example: `--layers base,rust,python` |
-| `--shell` | Start an interactive shell instead of running the agent command. This allows you to use the jail environment without executing the AI agent. Example: `jail-ai claude --shell` |
+| `--shell` | Start an interactive shell instead of running the agent command. This allows you to use the jail environment without executing the AI agent. Example: `jail-ai agents --shell claude` |
 | `--no-nix` | Ignore flake.nix file and skip nix layer if present. By default, jail-ai automatically detects and builds nix layer when flake.nix is found in the workspace. Use this flag to disable nix detection and layer building. |
 | `--nix-store MODE` | Where `/nix` lives for Nix jails. `shared` (default for new jails): one global `jail-ai-nix` volume reused by all projects. `project`: one `<jail>__nix` volume per project (the previous default). `host`: bind-mount the host's `/nix/store` read-only and build through the host nix-daemon (requires a Nix host). **Security:** the jail inherits your host user's nix-daemon trust level, so if that user is in the daemon's `trusted-users` the jail can set substituters and build hooks and import paths into the host store. See `docs/specs/NIX_FLAKES_SUPPORT.md`. Existing jails keep their mode unless this flag is given. |
 
@@ -148,53 +144,53 @@ jail-ai exec my-agent -- ls -la /workspace
 
 Quick start Claude Code (minimal auth - only API keys):
 ```bash
-jail-ai claude
+jail-ai agents claude
 ```
 
 Start Claude with full config directory and git/GPG support:
 ```bash
-jail-ai claude --claude-dir --git-gpg
+jail-ai agents --claude-dir --git-gpg claude
 ```
 
 Start GitHub Copilot with authentication:
 ```bash
-jail-ai copilot --copilot-dir
+jail-ai agents --copilot-dir copilot
 ```
 
 Start Cursor Agent with authentication:
 ```bash
-jail-ai cursor --cursor-dir
+jail-ai agents --cursor-dir cursor
 ```
 
 Start Gemini CLI with authentication:
 ```bash
-jail-ai gemini --gemini-dir
+jail-ai agents --gemini-dir gemini
 ```
 
 Start Codex CLI with API key authentication:
 ```bash
-jail-ai codex --codex-dir
+jail-ai agents --codex-dir codex
 ```
 
 Pass arguments to the AI agent (including flags with hyphens):
 ```bash
-jail-ai claude -- chat "help me debug this code"
-jail-ai claude -- --help
-jail-ai claude -- --version
-jail-ai copilot -- suggest "write tests"
-jail-ai gemini -- --model gemini-pro "explain this code"
+jail-ai agents claude -- chat "help me debug this code"
+jail-ai agents claude -- --help
+jail-ai agents claude -- --version
+jail-ai agents copilot -- suggest "write tests"
+jail-ai agents gemini -- --model gemini-pro "explain this code"
 ```
 
 Start an interactive shell in an agent jail (without running the agent):
 ```bash
-jail-ai claude --shell
-jail-ai copilot --copilot-dir --shell
+jail-ai agents --shell claude
+jail-ai agents --copilot-dir --shell copilot
 ```
 
 AI agent commands ignoring flake.nix file (skip nix layer):
 ```bash
-jail-ai claude --no-nix -- chat "help me debug this code"
-jail-ai copilot --no-nix --copilot-dir -- suggest "write tests"
+jail-ai agents --no-nix claude -- chat "help me debug this code"
+jail-ai agents --no-nix --copilot-dir copilot -- suggest "write tests"
 ```
 
 ### Configuration Mounting
@@ -206,7 +202,7 @@ jail-ai create my-agent --agent-configs --git-gpg
 
 Start Claude with custom workspace path:
 ```bash
-jail-ai claude --workspace-path /app
+jail-ai agents --workspace-path /app claude
 ```
 
 ### Resource Limits

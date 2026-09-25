@@ -104,7 +104,7 @@ $ jail-ai create my-rust-project
 
 ### Subsequent usage (same project):
 ```bash
-$ jail-ai claude
+$ jail-ai agents claude
 → Detecting project type: Rust (found Cargo.toml)
 → Using cached base image ✓
 → Using cached rust image ✓
@@ -218,7 +218,7 @@ The layered image system is **production-ready** and provides significant improv
 - **Seamless auto-detection**
 - **Fully backward compatible**
 
-The system works transparently - users don't need to change their workflow. When they run `jail-ai create` or `jail-ai claude`, the system automatically detects the project type and builds only the necessary layers.
+The system works transparently - users don't need to change their workflow. When they run `jail-ai create` or `jail-ai agents claude`, the system automatically detects the project type and builds only the necessary layers.
 
 ---
 

@@ -52,13 +52,13 @@ class JailAi < Formula
       QUICK START
       -----------
         # Run Claude Code sandboxed in the current directory
-        jail-ai claude
+        jail-ai agents claude
 
         # Run GitHub Copilot (mount credentials first)
-        jail-ai copilot --copilot-dir
+        jail-ai agents --copilot-dir copilot
 
         # Run Gemini CLI
-        jail-ai gemini --gemini-dir
+        jail-ai agents --gemini-dir gemini
 
       FIRST RUN
       ---------

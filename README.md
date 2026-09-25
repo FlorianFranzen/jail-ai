@@ -118,38 +118,38 @@ jail-ai exec my-agent -- ls -la /workspace
 jail-ai exec my-agent --interactive -- bash
 
 # Claude Code with minimal auth (auto-mounts credentials only)
-jail-ai claude -- chat "help me debug this code"
+jail-ai agents claude -- chat "help me debug this code"
 
 # GitHub Copilot with full config
-jail-ai copilot --copilot-dir -- suggest "write tests"
+jail-ai agents --copilot-dir copilot -- suggest "write tests"
 
 # Cursor Agent with full config
-jail-ai cursor --cursor-dir -- analyze
+jail-ai agents --cursor-dir cursor -- analyze
 
 # Gemini CLI with full config
-jail-ai gemini --gemini-dir -- --model gemini-pro "explain this"
+jail-ai agents --gemini-dir gemini -- --model gemini-pro "explain this"
 
 # Codex CLI - Open interactive shell for OAuth authentication
-jail-ai codex --codex-dir --auth
+jail-ai agents --codex-dir --auth codex
 
 # Codex CLI - Run agent after authentication is complete
-jail-ai codex --codex-dir -- generate "create a REST API"
+jail-ai agents --codex-dir codex -- generate "create a REST API"
 
 # Jules CLI - Google's AI coding assistant
-jail-ai jules --jules-dir -- chat "help me refactor this code"
+jail-ai agents --jules-dir jules -- chat "help me refactor this code"
 
 # OpenCode - Open source AI coding agent
-jail-ai opencode --opencode-dir -- chat "help me with this code"
+jail-ai agents --opencode-dir opencode -- chat "help me with this code"
 
 # Pi - Open source AI coding agent
-jail-ai pi --pi-dir -- "help me with this code"
+jail-ai agents --pi-dir pi -- "help me with this code"
 
 # Start interactive shell in Claude jail (without running Claude)
-jail-ai claude --shell
+jail-ai agents --shell claude
 
 # Use eBPF host blocking (requires jail-ai-ebpf-loader installed)
 jail-ai create my-agent --block-host
-jail-ai claude --block-host -- chat "help me debug"
+jail-ai agents claude -- chat "help me debug"
 ```
 
 ## ⚡ Performance Optimizations
@@ -168,14 +168,14 @@ Enable parallel building for multi-language projects:
 
 ```bash
 export JAIL_AI_PARALLEL_BUILD=1
-jail-ai claude  # Up to 3× faster for Rust + Node.js + Python projects
+jail-ai agents claude  # Up to 3× faster for Rust + Node.js + Python projects
 ```
 
 Enable background pre-fetching of layers:
 
 ```bash
 export JAIL_AI_PREFETCH=1
-jail-ai claude  # Layers build in background while you work
+jail-ai agents claude  # Layers build in background while you work
 ```
 
 Combine both for maximum performance:
@@ -183,7 +183,7 @@ Combine both for maximum performance:
 ```bash
 export JAIL_AI_PARALLEL_BUILD=1
 export JAIL_AI_PREFETCH=1
-jail-ai claude
+jail-ai agents claude
 ```
 
 **Performance Gains:**
@@ -253,7 +253,7 @@ localhost/jail-ai-agent-claude:base-rust-nodejs
 **Isolated Mode**: Workspace-specific images
 
 ```bash
-jail-ai claude --isolated  # Uses: localhost/jail-ai-agent-claude:abc12345
+jail-ai agents --isolated claude  # Uses: localhost/jail-ai-agent-claude:abc12345
 ```
 
 ## 🔐 Authentication & Configuration
@@ -262,14 +262,14 @@ jail-ai claude --isolated  # Uses: localhost/jail-ai-agent-claude:abc12345
 
 **Default Behavior (Minimal Auth)**:
 
-- `jail-ai claude` → Auto-mounts `~/.claude/.credentials.json` (API keys only)
-- `jail-ai copilot` → No auth mounted (use `--copilot-dir`)
-- `jail-ai cursor` → No auth mounted (use `--cursor-dir`)
-- `jail-ai gemini` → No auth mounted (use `--gemini-dir`)
-- `jail-ai codex` → No auth mounted (use `--codex-dir`)
-- `jail-ai jules` → No auth mounted (use `--jules-dir`)
-- `jail-ai opencode` → No auth mounted (use `--opencode-dir`)
-- `jail-ai pi` → No auth mounted (use `--pi-dir`)
+- `jail-ai agents claude` → Auto-mounts `~/.claude/.credentials.json` (API keys only)
+- `jail-ai agents copilot` → No auth mounted (use `--copilot-dir`)
+- `jail-ai agents cursor` → No auth mounted (use `--cursor-dir`)
+- `jail-ai agents gemini` → No auth mounted (use `--gemini-dir`)
+- `jail-ai agents codex` → No auth mounted (use `--codex-dir`)
+- `jail-ai agents jules` → No auth mounted (use `--jules-dir`)
+- `jail-ai agents opencode` → No auth mounted (use `--opencode-dir`)
+- `jail-ai agents pi` → No auth mounted (use `--pi-dir`)
 
 **Opt-in Mounting**:
 
@@ -309,7 +309,7 @@ Use `--git-gpg` flag to enable:
 
 ```bash
 # Claude with full config + git/GPG
-jail-ai claude --claude-dir --git-gpg -- chat "make a commit"
+jail-ai agents --claude-dir --git-gpg claude -- chat "make a commit"
 ```
 
 ## 🔥 eBPF Host Blocking
@@ -347,8 +347,8 @@ Use the `--block-host` flag when creating a jail:
 jail-ai create my-agent --block-host
 
 # Use with AI agents
-jail-ai claude --block-host -- chat "help me debug"
-jail-ai copilot --copilot-dir --block-host -- suggest "write tests"
+jail-ai agents claude -- chat "help me debug"
+jail-ai agents --copilot-dir copilot -- suggest "write tests"
 ```
 
 ### Security Model

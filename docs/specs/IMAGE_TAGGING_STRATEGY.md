@@ -68,7 +68,7 @@ ISOLATED MODE (--isolated):
 **Project A** (`~/rust-project-a`):
 ```bash
 $ cd ~/rust-project-a
-$ jail-ai claude
+$ jail-ai agents claude
 
 → Detected: Rust
 → Building shared layers:
@@ -83,7 +83,7 @@ $ jail-ai claude
 **Project B** (`~/rust-project-b`):
 ```bash
 $ cd ~/rust-project-b
-$ jail-ai claude
+$ jail-ai agents claude
 
 → Detected: Rust
 → Reusing shared layers:
@@ -103,7 +103,7 @@ When you need project-specific isolation:
 
 ```bash
 $ cd ~/rust-project-a
-$ jail-ai claude --isolated
+$ jail-ai agents --isolated claude
 
 → Detected: Rust
 → Using isolated mode: workspace-specific image
@@ -160,7 +160,7 @@ This ensures:
 
 ## Build Flow
 
-### For Agent Commands (e.g., `jail-ai claude`)
+### For Agent Commands (e.g., `jail-ai agents claude`)
 
 ```
 1. Detect workspace → Generate hash (abc12345)
@@ -216,7 +216,7 @@ Only rebuild project-specific layer:
 ```bash
 # Update agent for project A
 $ cd ~/rust-project-a
-$ jail-ai claude --force-rebuild
+$ jail-ai agents --force-rebuild claude
 
 → Reuses: base:latest, rust:latest, nodejs:latest
 → Rebuilds only: agent-claude:abc12345 (30 seconds)
@@ -246,21 +246,21 @@ $ podman rmi localhost/jail-ai-agent-claude:abc12345
 
 ### Creation
 ```bash
-$ jail-ai claude
+$ jail-ai agents claude
 → Creates: jail-ai-agent-claude:abc12345
 → Creates: jail-myproject-abc12345-claude (container)
 ```
 
 ### Reuse
 ```bash
-$ jail-ai claude  # Same project, same directory
+$ jail-ai agents claude  # Same project, same directory
 → Reuses: jail-ai-agent-claude:abc12345 (no rebuild)
 → Reuses: jail-myproject-abc12345-claude (if exists)
 ```
 
 ### Update
 ```bash
-$ jail-ai claude --force-rebuild
+$ jail-ai agents --force-rebuild claude
 → Rebuilds: jail-ai-agent-claude:abc12345
 → Recreates: jail-myproject-abc12345-claude
 ```
@@ -280,19 +280,19 @@ $ jail-ai remove
 ```bash
 # Project 1: Rust + Claude
 $ cd ~/rust-project-1
-$ jail-ai claude
+$ jail-ai agents claude
 → Builds: base, rust, nodejs
 → Creates: agent-claude:a1b2c3d4
 
 # Project 2: Rust + Copilot (reuses base, rust, nodejs)
 $ cd ~/rust-project-2
-$ jail-ai copilot --copilot-dir
+$ jail-ai agents --copilot-dir copilot
 → Reuses: base, rust, nodejs
 → Creates: agent-copilot:e5f6g7h8
 
 # Project 3: Python + Claude (reuses base, nodejs)
 $ cd ~/python-project
-$ jail-ai claude
+$ jail-ai agents claude
 → Reuses: base, nodejs
 → Builds: python
 → Creates: agent-claude:i9j0k1l2

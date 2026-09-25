@@ -84,7 +84,7 @@ Modified the `create()` method to:
 
 ### First Run Flow:
 
-1. User runs `jail-ai create` or `jail-ai claude`
+1. User runs `jail-ai create` or `jail-ai agents claude`
 2. Image module checks if default image exists
 3. If not, config directory is created at `~/.config/jail-ai/`
 4. Embedded Containerfile is written to `~/.config/jail-ai/Containerfile`

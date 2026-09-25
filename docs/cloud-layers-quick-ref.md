@@ -11,7 +11,7 @@ make rebuild-cloud-layers
 
 # Or manually
 ./scripts/update-cloud-versions.sh
-jail-ai claude --cloud --upgrade --force-layers aws,gcp
+jail-ai agents --cloud --upgrade --layers aws,gcp claude
 ```
 
 ## 📊 Current Versions
@@ -46,7 +46,7 @@ jail-ai claude --cloud --upgrade --force-layers aws,gcp
 1. **Update**: `make update-cloud-versions`
 2. **Review**: `git diff containerfiles/`
 3. **Rebuild**: `make rebuild-cloud-layers`
-4. **Test**: `jail-ai claude --cloud --shell`
+4. **Test**: `jail-ai agents --cloud --shell claude`
 5. **Commit**: `git add containerfiles/ && git commit`
 
 ## 🎯 How It Works

@@ -136,7 +136,7 @@ When you create a jail, jail-ai automatically detects your project type and buil
 | Multiple files | Multi-language | `base` → all detected layers |
 | No specific files | Generic | `base` only |
 
-For agent commands (e.g., `jail-ai claude`), the appropriate agent layer is added:
+For agent commands (e.g., `jail-ai agents claude`), the appropriate agent layer is added:
 - `base` → `nodejs` → `agent-claude`
 
 ## On-Demand Building
@@ -159,7 +159,7 @@ cargo run -- create my-rust-project
 # → Uses existing images (instant)
 
 # Using Claude: adds agent layer
-cargo run -- claude
+cargo run -- agents claude
 # → Uses: localhost/jail-ai-base:latest (cached)
 # → Uses: localhost/jail-ai-nodejs:latest (cached or new)
 # → Builds: localhost/jail-ai-agent-claude:latest
