@@ -67,6 +67,14 @@ pub struct JailConfig {
     /// Where the Nix store (/nix) of Nix-enabled jails lives
     #[serde(default)]
     pub nix_store: NixStoreMode,
+
+    /// Whether the resolved image contains the nix layer, as reported by image
+    /// resolution. Set from the detected project type, so it stays correct for
+    /// `--isolated` images whose tag is a workspace hash and carries no `nix`
+    /// component. Defaults to false; `PodmanBackend` falls back to inspecting
+    /// the image name when this is not set.
+    #[serde(default)]
+    pub uses_nix: bool,
 }
 
 /// Storage strategy for /nix in jails whose image contains the nix layer
@@ -231,6 +239,7 @@ impl Default for JailConfig {
             block_host: true,
             podman_socket: false,
             nix_store: NixStoreMode::default(),
+            uses_nix: false,
         }
     }
 }

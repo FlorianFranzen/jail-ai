@@ -143,11 +143,15 @@ impl JailBackend for ContainerAppBackend {
                         .await
                         .map_err(|e| JailError::Backend(format!("Failed to pull image: {e}")))?;
                 }
-                config.base_image.clone()
+                crate::image_layers::ResolvedImage {
+                    name: config.base_image.clone(),
+                    uses_nix: config.uses_nix,
+                }
             };
 
         let mut modified_config = config.clone();
-        modified_config.base_image = actual_image;
+        modified_config.base_image = actual_image.name;
+        modified_config.uses_nix = actual_image.uses_nix;
         let args = self.build_run_args(&modified_config);
         let mut cmd = Command::new("container");
         cmd.args(&args);
@@ -430,6 +434,7 @@ impl JailBackend for ContainerAppBackend {
             block_host: false,
             podman_socket: false,
             nix_store: crate::config::NixStoreMode::default(),
+            uses_nix: false,
         })
     }
 }
