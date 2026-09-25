@@ -58,7 +58,7 @@ pub async fn check_layers_need_rebuild(
    - List of outdated layers
    - Container image mismatch details
    - Clear recommendations
-4. If user accepts, automatically enable `--force-rebuild`
+4. If user accepts, automatically enable `--upgrade`
 
 ### 4. `src/main.rs`
 
@@ -106,7 +106,7 @@ Layers contain updated tools, dependencies, or security patches.
   Current:  localhost/jail-ai-agent-claude:base-rust-nodejs-abc123
   Expected: localhost/jail-ai-agent-claude:base-rust-nodejs-def456
 
-💡 Recommendation: Use --force-rebuild to:
+💡 Recommendation: Use --upgrade to:
   • Rebuild outdated layers with latest definitions
   • Recreate container with the correct image
   • Ensure you have the latest tools and security patches
@@ -116,7 +116,7 @@ Your data in /home/agent will be preserved during the rebuild.
 Would you like to rebuild now? (y/N): y
 ```
 
-Type `y` → Automatic `--force-rebuild` is triggered, rebuilding all outdated layers and recreating the container.
+Type `y` → Automatic `--upgrade` is triggered, rebuilding all outdated layers and recreating the container.
 
 ## Benefits
 

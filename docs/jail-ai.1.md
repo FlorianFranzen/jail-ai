@@ -44,25 +44,23 @@ Show the status of a jail including its running state, resource usage, and confi
 
 Save the jail configuration to a JSON file. This can be used to recreate the jail later with identical settings.
 
-### claude [OPTIONS] [-- ARGS...]
+### agents [OPTIONS] AGENT [-- ARGS...]
 
-Quick start Claude Code in a jail for the current directory. Automatically mounts `~/.claude/.credentials.json` for authentication. Use `--claude-dir` to mount the entire `~/.claude` directory. Any arguments after `--` are passed directly to the claude command.
+Run an AI coding agent in a jail for the current directory. **AGENT** is one of `claude`,
+`claude-code-router`, `coderabbit`, `codex`, `copilot`, `cursor`, `gemini`, `jules`, `opencode` or
+`pi`.
 
-### copilot [OPTIONS] [-- ARGS...]
+The agent's own config directory is mounted automatically (`~/.claude` for `claude`,
+`~/.config/.copilot` for `copilot`, and so on) — the whole directory, not just the credentials. Use
+`--agent-configs` to mount every agent's directory instead of only the one being run.
 
-Quick start GitHub Copilot CLI in a jail for the current directory. Use `--copilot-dir` to mount `~/.config/.copilot` for authentication. Any arguments after `--` are passed directly to the copilot command.
+For agents that authenticate through a browser (`coderabbit`, `codex`, `jules`), use `--auth` to open
+an interactive shell in the container; it joins a running container or starts a stopped one, and
+switches the jail to host networking so the OAuth redirect can reach your browser. Restart without
+`--auth` afterwards to restore network isolation.
 
-### cursor [OPTIONS] [-- ARGS...]
-
-Quick start Cursor Agent in a jail for the current directory. Use `--cursor-dir` to mount `~/.cursor` and `~/.config/cursor` for authentication and settings. Any arguments after `--` are passed directly to the cursor-agent command.
-
-### gemini [OPTIONS] [-- ARGS...]
-
-Quick start Gemini CLI in a jail for the current directory. Use `--gemini-dir` to mount `~/.gemini` for authentication. Any arguments after `--` are passed directly to the gemini command.
-
-### codex [OPTIONS] [-- ARGS...]
-
-Quick start Codex CLI in a jail for the current directory. Use `--codex-dir` to mount `~/.codex` for authentication. Use `--auth` to open interactive shell for OAuth authentication (joins running container or starts stopped one). Any arguments after `--` are passed directly to the codex command.
+All options must appear **before** AGENT. Anything after `--` is passed through to the agent command
+unchanged.
 
 ### list [-c|--current]
 
@@ -85,7 +83,7 @@ Upgrade a jail by recreating it with the latest image version. Use `--all` to up
 
 ## COMMON OPTIONS
 
-The following options are available for the **create**, **claude**, **copilot**, **cursor**, **gemini**, and **codex** commands:
+The following options are available for the **create** and **agents** commands:
 
 | Option | Description |
 |--------|-------------|
@@ -98,14 +96,8 @@ The following options are available for the **create**, **claude**, **copilot**,
 | `--cpu PERCENT` | CPU quota percentage (0-100). Example: `--cpu 50` (for 50% of one CPU core) |
 | `--no-workspace` | Skip auto-mounting the current working directory to /workspace in the jail. |
 | `--workspace-path PATH` | Custom workspace path inside jail. Default: `/workspace`. Example: `--workspace-path /app` |
-| `--claude-dir` | Mount entire `~/.claude` directory (includes settings, commands, history). Default behavior for 'claude' command: only mounts `~/.claude/.credentials.json` |
-| `--copilot-dir` | Mount `~/.config/.copilot` directory for GitHub Copilot authentication and configuration. Default behavior: no authentication mounted (requires this flag for copilot to work) |
-| `--cursor-dir` | Mount `~/.cursor` and `~/.config/cursor` directories for Cursor Agent authentication, settings, and configuration. Default behavior: no authentication mounted (requires this flag for cursor to work) |
-| `--gemini-dir` | Mount `~/.gemini` directory for Gemini CLI authentication and settings. Default behavior: no authentication mounted (requires this flag for gemini to work) |
-| `--codex-dir` | Mount `~/.codex` directory for Codex CLI authentication and settings. Use `--auth` to open interactive shell for OAuth authentication. Default behavior: no authentication mounted (requires this flag for codex to work) |
-| `--agent-configs` | Mount all agent config directories. Combines `--claude-dir`, `--copilot-dir`, `--cursor-dir`, `--gemini-dir`, and `--codex-dir`. Useful when working with multiple AI agents in the same jail. |
+| `--agent-configs` | Mount all agent config directories. Mounts every agent's config directory rather than only the one being run. Useful when working with multiple AI agents in the same jail. |
 | `--git-gpg` | Enable git and GPG configuration mapping. Mounts `~/.gnupg` directory, all GPG agent sockets (`/run/user/<UID>/gnupg/*`), and creates or mounts git configuration with user identity and signing settings. If `gpg.format=ssh` is configured, also mounts the SSH allowed signers file. This is opt-in (disabled by default) for security. |
-| `--force-rebuild` | Force rebuild of the default image, even if it already exists. Useful after modifying `~/.config/jail-ai/Containerfile`. |
 | `--layers LAYER[,LAYER...]` | Force specific image layers (comma-separated). Available layers: base, rust, python, nodejs, golang, java, php, cpp, csharp, nix, kubernetes, terraform, and agent-specific layers (agent-claude, agent-copilot, agent-cursor, agent-gemini, agent-codex). Example: `--layers base,rust,python` |
 | `--shell` | Start an interactive shell instead of running the agent command. This allows you to use the jail environment without executing the AI agent. Example: `jail-ai agents --shell claude` |
 | `--no-nix` | Ignore flake.nix file and skip nix layer if present. By default, jail-ai automatically detects and builds nix layer when flake.nix is found in the workspace. Use this flag to disable nix detection and layer building. |
@@ -149,27 +141,27 @@ jail-ai agents claude
 
 Start Claude with full config directory and git/GPG support:
 ```bash
-jail-ai agents --claude-dir --git-gpg claude
+jail-ai agents --git-gpg claude
 ```
 
 Start GitHub Copilot with authentication:
 ```bash
-jail-ai agents --copilot-dir copilot
+jail-ai agents copilot
 ```
 
 Start Cursor Agent with authentication:
 ```bash
-jail-ai agents --cursor-dir cursor
+jail-ai agents cursor
 ```
 
 Start Gemini CLI with authentication:
 ```bash
-jail-ai agents --gemini-dir gemini
+jail-ai agents gemini
 ```
 
 Start Codex CLI with API key authentication:
 ```bash
-jail-ai agents --codex-dir codex
+jail-ai agents codex
 ```
 
 Pass arguments to the AI agent (including flags with hyphens):
@@ -184,13 +176,13 @@ jail-ai agents gemini -- --model gemini-pro "explain this code"
 Start an interactive shell in an agent jail (without running the agent):
 ```bash
 jail-ai agents --shell claude
-jail-ai agents --copilot-dir --shell copilot
+jail-ai agents --shell copilot
 ```
 
 AI agent commands ignoring flake.nix file (skip nix layer):
 ```bash
 jail-ai agents --no-nix claude -- chat "help me debug this code"
-jail-ai agents --no-nix --copilot-dir copilot -- suggest "write tests"
+jail-ai agents --no-nix copilot -- suggest "write tests"
 ```
 
 ### Configuration Mounting
@@ -235,9 +227,9 @@ jail-ai create my-agent \
 
 ### Image Management
 
-Force rebuild the default image:
+Rebuild outdated layers and recreate the container:
 ```bash
-jail-ai create my-agent --force-rebuild
+jail-ai create my-agent --upgrade
 ```
 
 Create jail with specific language layers:
@@ -296,14 +288,12 @@ jail-ai clean-all --force
 
 | File/Directory | Description |
 |----------------|-------------|
-| `~/.config/jail-ai/Containerfile` | Custom image configuration. On first use, jail-ai copies the embedded Containerfile to this location. Edit this file to customize the container image. Changes are detected automatically and the image is rebuilt on next jail creation. |
-| `~/.claude/.credentials.json` | Claude authentication credentials. Automatically mounted for the 'claude' command (minimal auth - API keys only). Use `--claude-dir` to mount the entire `~/.claude` directory. |
-| `~/.claude/` | Claude Code configuration directory (settings, commands, history). Mounted when `--claude-dir` is specified. |
-| `~/.config/.copilot/` | GitHub Copilot CLI configuration directory. Mounted when `--copilot-dir` is specified. |
-| `~/.cursor/` | Cursor Agent data directory. Mounted when `--cursor-dir` is specified. |
-| `~/.config/cursor/` | Cursor Agent configuration directory. Mounted when `--cursor-dir` is specified. |
-| `~/.gemini/` | Gemini CLI configuration directory. Mounted when `--gemini-dir` is specified. |
-| `~/.codex/` | Codex CLI configuration directory. Mounted when `--codex-dir` is specified. |
+| `~/.claude/` | Claude Code configuration directory (settings, commands, history). Mounted for `agents claude`. |
+| `~/.config/.copilot/` | GitHub Copilot CLI configuration directory. Mounted for `agents copilot`. |
+| `~/.cursor/` | Cursor Agent data directory. Mounted for `agents cursor`. |
+| `~/.config/cursor/` | Cursor Agent configuration directory. Mounted for `agents cursor`. |
+| `~/.gemini/` | Gemini CLI configuration directory. Mounted for `agents gemini`. |
+| `~/.codex/` | Codex CLI configuration directory. Mounted for `agents codex`. |
 | `~/.gnupg/` | GPG configuration directory. Mounted when `--git-gpg` is specified, enabling GPG signing inside the jail. |
 | `/run/user/<UID>/gnupg/` | GPG agent socket directory. All sockets (S.gpg-agent, S.gpg-agent.ssh, S.gpg-agent.extra, S.gpg-agent.browser) are mounted when `--git-gpg` is specified. |
 | `.git/config` | Local git configuration. If present, mounted to /home/agent/.gitconfig when `--git-gpg` is specified. Otherwise, git configuration is extracted from the project or global config. |
@@ -366,7 +356,7 @@ The default jail-ai-env image includes the following tools and languages:
 Currently, only podman is supported as the backend. The `--backend` option is kept for compatibility but has no effect.
 
 ### Automatic Image Building
-The default image (`localhost/jail-ai-env:latest`) is automatically built if not present when creating a jail or running an AI agent command. The Containerfile is embedded in the binary and copied to `~/.config/jail-ai/Containerfile` on first use.
+Images are built automatically if not present when creating a jail or running an agent. All Containerfiles are embedded in the binary and written to a temporary directory at build time; to customize a single project, add a `jail-ai.Containerfile` to its root.
 
 ### Jail Naming
 Jail names are automatically generated from the current directory path using a hash for uniqueness. Names are sanitized to match podman requirements (`[a-zA-Z0-9][a-zA-Z0-9_.-]*`).

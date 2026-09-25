@@ -1,5 +1,11 @@
 # Implementation Summary: Automatic Image Building
 
+> **Superseded in part.** The user-level `~/.config/jail-ai/Containerfile` override described
+> below no longer exists: Containerfiles are embedded in the binary and written to a temporary
+> directory at build time. Per-project customization is now a `jail-ai.Containerfile` in the
+> project root — see [IMAGE_TAGGING_STRATEGY.md](IMAGE_TAGGING_STRATEGY.md) and the
+> "Custom Project Layer" section of CLAUDE.md.
+
 ## Overview
 
 Successfully implemented automatic image building with embedded Containerfile and change detection for jail-ai. This feature provides a zero-configuration experience while allowing users to customize their development environment.

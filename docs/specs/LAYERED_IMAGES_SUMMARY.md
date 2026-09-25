@@ -164,7 +164,7 @@ language layers → base layer
 
 ### Force Rebuild
 ```bash
-jail-ai create --force-rebuild  # Rebuilds all layers
+jail-ai create --upgrade  # Rebuilds outdated layers
 ```
 
 ### Disable Layered System

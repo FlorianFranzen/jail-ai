@@ -216,7 +216,7 @@ Only rebuild project-specific layer:
 ```bash
 # Update agent for project A
 $ cd ~/rust-project-a
-$ jail-ai agents --force-rebuild claude
+$ jail-ai agents --upgrade claude
 
 → Reuses: base:latest, rust:latest, nodejs:latest
 → Rebuilds only: agent-claude:abc12345 (30 seconds)
@@ -260,7 +260,7 @@ $ jail-ai agents claude  # Same project, same directory
 
 ### Update
 ```bash
-$ jail-ai agents --force-rebuild claude
+$ jail-ai agents --upgrade claude
 → Rebuilds: jail-ai-agent-claude:abc12345
 → Recreates: jail-myproject-abc12345-claude
 ```
@@ -286,7 +286,7 @@ $ jail-ai agents claude
 
 # Project 2: Rust + Copilot (reuses base, rust, nodejs)
 $ cd ~/rust-project-2
-$ jail-ai agents --copilot-dir copilot
+$ jail-ai agents copilot
 → Reuses: base, rust, nodejs
 → Creates: agent-copilot:e5f6g7h8
 

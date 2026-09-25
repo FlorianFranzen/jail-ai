@@ -55,10 +55,10 @@ class JailAi < Formula
         jail-ai agents claude
 
         # Run GitHub Copilot (mount credentials first)
-        jail-ai agents --copilot-dir copilot
+        jail-ai agents copilot
 
         # Run Gemini CLI
-        jail-ai agents --gemini-dir gemini
+        jail-ai agents gemini
 
       FIRST RUN
       ---------

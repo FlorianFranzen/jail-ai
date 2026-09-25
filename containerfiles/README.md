@@ -207,7 +207,7 @@ podman build -t localhost/jail-ai-agent-claude:latest --build-arg BASE_IMAGE=loc
 To customize a layer:
 
 1. Edit the Containerfile in this directory
-2. Rebuild using `cargo run -- create --force-rebuild`
+2. Rebuild using `cargo run -- create --upgrade`
 3. Changes are automatically detected
 
 ## Legacy Monolithic Image

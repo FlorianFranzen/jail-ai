@@ -52,20 +52,15 @@ Show the status of a jail including its running state, resource usage, and confi
 .B save [NAME] \-o FILE
 Save the jail configuration to a JSON file. This can be used to recreate the jail later with identical settings.
 .TP
-.B claude [OPTIONS] [\-\- ARGS...]
-Quick start Claude Code in a jail for the current directory. Automatically mounts ~/.claude/.credentials.json for authentication. Use \fB\-\-claude\-dir\fR to mount the entire ~/.claude directory. Any arguments after \fB\-\-\fR are passed directly to the claude command.
-.TP
-.B copilot [OPTIONS] [\-\- ARGS...]
-Quick start GitHub Copilot CLI in a jail for the current directory. Use \fB\-\-copilot\-dir\fR to mount ~/.config/.copilot for authentication. Any arguments after \fB\-\-\fR are passed directly to the copilot command.
-.TP
-.B cursor [OPTIONS] [\-\- ARGS...]
-Quick start Cursor Agent in a jail for the current directory. Use \fB\-\-cursor\-dir\fR to mount ~/.cursor and ~/.config/cursor for authentication and settings. Any arguments after \fB\-\-\fR are passed directly to the cursor-agent command.
-.TP
-.B gemini [OPTIONS] [\-\- ARGS...]
-Quick start Gemini CLI in a jail for the current directory. Use \fB\-\-gemini\-dir\fR to mount ~/.gemini for authentication. Any arguments after \fB\-\-\fR are passed directly to the gemini command.
-.TP
-.B codex [OPTIONS] [\-\- ARGS...]
-Quick start Codex CLI in a jail for the current directory. Use \fB\-\-codex\-dir\fR to mount ~/.codex for authentication. Use \fB\-\-auth\fR to open interactive shell for OAuth authentication (joins running container or starts stopped one). Any arguments after \fB\-\-\fR are passed directly to the codex command.
+.B agents [OPTIONS] AGENT [\-\- ARGS...]
+Run an AI coding agent in a jail for the current directory. \fIAGENT\fR is one of claude,
+claude-code-router, coderabbit, codex, copilot, cursor, gemini, jules, opencode or pi.
+.br
+The agent's own config directory is mounted automatically (~/.claude for claude, ~/.config/.copilot for copilot, and so on) \(em the whole directory, not just the credentials. Use \fB\-\-agent\-configs\fR to mount every agent's directory instead of only the one being run.
+.br
+For agents that authenticate through a browser (coderabbit, codex, jules), use \fB\-\-auth\fR to open an interactive shell in the container; it joins a running container or starts a stopped one, and switches the jail to host networking so the OAuth redirect can reach your browser. Restart without \fB\-\-auth\fR afterwards to restore network isolation.
+.br
+All options must appear \fBbefore\fR \fIAGENT\fR. Anything after \fB\-\-\fR is passed through to the agent command unchanged.
 .TP
 .B list [\-c|\-\-current]
 List all jails managed by jail-ai. Use \fB\-c\fR to show only jails associated with the current directory.
@@ -86,7 +81,7 @@ Enable verbose logging with DEBUG level output. Shows detailed information about
 .BR \-q ", " \-\-quiet
 Quiet mode - suppress INFO logs, only show warnings and errors. Conflicts with \fB\-\-verbose\fR.
 .SH COMMON OPTIONS
-The following options are available for the \fBcreate\fR, \fBclaude\fR, \fBcopilot\fR, \fBcursor\fR, \fBgemini\fR, and \fBcodex\fR commands:
+The following options are available for the \fBcreate\fR and \fBagents\fR commands:
 .TP
 .BR \-b ", " \-\-backend " \fIBACKEND\fR"
 Backend type (only 'podman' is supported, kept for compatibility). Default: podman
@@ -123,35 +118,8 @@ Custom workspace path inside jail. Default: /workspace
 .br
 Example: \-\-workspace\-path /app
 .TP
-.B \-\-claude\-dir
-Mount entire ~/.claude directory (includes settings, commands, history).
-.br
-Default behavior for 'claude' command: only mounts ~/.claude/.credentials.json
-.TP
-.B \-\-copilot\-dir
-Mount ~/.config/.copilot directory for GitHub Copilot authentication and configuration.
-.br
-Default behavior: no authentication mounted (requires this flag for copilot to work)
-.TP
-.B \-\-cursor\-dir
-Mount ~/.cursor and ~/.config/cursor directories for Cursor Agent authentication, settings, and configuration.
-.br
-Default behavior: no authentication mounted (requires this flag for cursor to work)
-.TP
-.B \-\-gemini\-dir
-Mount ~/.gemini directory for Gemini CLI authentication and settings.
-.br
-Default behavior: no authentication mounted (requires this flag for gemini to work)
-.TP
-.B \-\-codex\-dir
-Mount ~/.codex directory for Codex CLI authentication and settings.
-.br
-Use \fB\-\-auth\fR to open interactive shell for OAuth authentication.
-.br
-Default behavior: no authentication mounted (requires this flag for codex to work)
-.TP
 .B \-\-agent\-configs
-Mount all agent config directories. Combines \fB\-\-claude\-dir\fR, \fB\-\-copilot\-dir\fR, \fB\-\-cursor\-dir\fR, \fB\-\-gemini\-dir\fR, and \fB\-\-codex\-dir\fR.
+Mount every agent's config directory rather than only the one being run.
 .br
 Useful when working with multiple AI agents in the same jail.
 .TP
@@ -159,9 +127,6 @@ Useful when working with multiple AI agents in the same jail.
 Enable git and GPG configuration mapping. Mounts ~/.gnupg directory, all GPG agent sockets (/run/user/<UID>/gnupg/*), and creates or mounts git configuration with user identity and signing settings. If gpg.format=ssh is configured, also mounts the SSH allowed signers file.
 .br
 This is opt-in (disabled by default) for security.
-.TP
-.B \-\-force\-rebuild
-Force rebuild of the default image, even if it already exists. Useful after modifying ~/.config/jail-ai/Containerfile.
 .TP
 .B \-\-layers " \fILAYER\fR[,\fILAYER\fR...]"
 Force specific image layers (comma-separated). Available layers: base, rust, python, nodejs, golang, java, php, cpp, csharp, nix, kubernetes, terraform, and agent-specific layers (agent-claude, agent-copilot, agent-cursor, agent-gemini, agent-codex).
@@ -231,35 +196,35 @@ jail-ai agents claude
 Start Claude with full config directory and git/GPG support:
 .RS
 .nf
-jail-ai agents --claude-dir --git-gpg claude
+jail-ai agents --git-gpg claude
 .fi
 .RE
 .PP
 Start GitHub Copilot with authentication:
 .RS
 .nf
-jail-ai agents --copilot-dir copilot
+jail-ai agents copilot
 .fi
 .RE
 .PP
 Start Cursor Agent with authentication:
 .RS
 .nf
-jail-ai agents --cursor-dir cursor
+jail-ai agents cursor
 .fi
 .RE
 .PP
 Start Gemini CLI with authentication:
 .RS
 .nf
-jail-ai agents --gemini-dir gemini
+jail-ai agents gemini
 .fi
 .RE
 .PP
 Start Codex CLI with API key authentication:
 .RS
 .nf
-jail-ai agents --codex-dir codex
+jail-ai agents codex
 .fi
 .RE
 .PP
@@ -278,7 +243,7 @@ Start an interactive shell in an agent jail (without running the agent):
 .RS
 .nf
 jail-ai agents --shell claude
-jail-ai agents --copilot-dir --shell copilot
+jail-ai agents --shell copilot
 .fi
 .RE
 .SS Configuration Mounting
@@ -335,7 +300,7 @@ jail-ai create my-agent \\
 Force rebuild the default image:
 .RS
 .nf
-jail-ai create my-agent --force-rebuild
+jail-ai create my-agent --upgrade
 .fi
 .RE
 .PP
@@ -411,29 +376,26 @@ jail-ai clean-all --force
 .RE
 .SH FILES
 .TP
-.I ~/.config/jail-ai/Containerfile
-Custom image configuration. On first use, jail-ai copies the embedded Containerfile to this location. Edit this file to customize the container image. Changes are detected automatically and the image is rebuilt on next jail creation.
-.TP
 .I ~/.claude/.credentials.json
-Claude authentication credentials. Automatically mounted for the 'claude' command (minimal auth - API keys only). Use \fB\-\-claude\-dir\fR to mount the entire ~/.claude directory.
+Claude authentication credentials, part of the ~/.claude directory mounted for \fBagents claude\fR.
 .TP
 .I ~/.claude/
-Claude Code configuration directory (settings, commands, history). Mounted when \fB\-\-claude\-dir\fR is specified.
+Claude Code configuration directory (settings, commands, history). Mounted for \fBagents claude\fR.
 .TP
 .I ~/.config/.copilot/
-GitHub Copilot CLI configuration directory. Mounted when \fB\-\-copilot\-dir\fR is specified.
+GitHub Copilot CLI configuration directory. Mounted for \fBagents copilot\fR.
 .TP
 .I ~/.cursor/
-Cursor Agent data directory. Mounted when \fB\-\-cursor\-dir\fR is specified.
+Cursor Agent data directory. Mounted for \fBagents cursor\fR.
 .TP
 .I ~/.config/cursor/
-Cursor Agent configuration directory. Mounted when \fB\-\-cursor\-dir\fR is specified.
+Cursor Agent configuration directory. Mounted for \fBagents cursor\fR.
 .TP
 .I ~/.gemini/
-Gemini CLI configuration directory. Mounted when \fB\-\-gemini\-dir\fR is specified.
+Gemini CLI configuration directory. Mounted for \fBagents gemini\fR.
 .TP
 .I ~/.config/codex/
-Codex CLI configuration directory. Mounted when \fB\-\-codex\-dir\fR is specified.
+Codex CLI configuration directory. Mounted for \fBagents codex\fR.
 .TP
 .I ~/.gnupg/
 GPG configuration directory. Mounted when \fB\-\-git\-gpg\fR is specified, enabling GPG signing inside the jail.
@@ -520,7 +482,7 @@ Codex CLI (codex) - OpenAI's Codex CLI for code generation
 .SS Backend Support
 Currently, only podman is supported as the backend. The \fB\-\-backend\fR option is kept for compatibility but has no effect.
 .SS Automatic Image Building
-The default image (localhost/jail-ai-env:latest) is automatically built if not present when creating a jail or running an AI agent command. The Containerfile is embedded in the binary and copied to ~/.config/jail-ai/Containerfile on first use.
+Images are built automatically if not present when creating a jail or running an agent. All Containerfiles are embedded in the binary and written to a temporary directory at build time; to customize a single project, add a jail-ai.Containerfile to its root.
 .SS Jail Naming
 Jail names are automatically generated from the current directory path using a hash for uniqueness. Names are sanitized to match podman requirements ([a-zA-Z0-9][a-zA-Z0-9_.-]*).
 .SS Security Considerations

@@ -121,35 +121,38 @@ jail-ai exec my-agent --interactive -- bash
 jail-ai agents claude -- chat "help me debug this code"
 
 # GitHub Copilot with full config
-jail-ai agents --copilot-dir copilot -- suggest "write tests"
+jail-ai agents copilot -- suggest "write tests"
 
 # Cursor Agent with full config
-jail-ai agents --cursor-dir cursor -- analyze
+jail-ai agents cursor -- analyze
 
 # Gemini CLI with full config
-jail-ai agents --gemini-dir gemini -- --model gemini-pro "explain this"
+jail-ai agents gemini -- --model gemini-pro "explain this"
 
 # Codex CLI - Open interactive shell for OAuth authentication
-jail-ai agents --codex-dir --auth codex
+jail-ai agents --auth codex
 
 # Codex CLI - Run agent after authentication is complete
-jail-ai agents --codex-dir codex -- generate "create a REST API"
+jail-ai agents codex -- generate "create a REST API"
 
 # Jules CLI - Google's AI coding assistant
-jail-ai agents --jules-dir jules -- chat "help me refactor this code"
+jail-ai agents jules -- chat "help me refactor this code"
 
 # OpenCode - Open source AI coding agent
-jail-ai agents --opencode-dir opencode -- chat "help me with this code"
+jail-ai agents opencode -- chat "help me with this code"
 
 # Pi - Open source AI coding agent
-jail-ai agents --pi-dir pi -- "help me with this code"
+jail-ai agents pi -- "help me with this code"
 
 # Start interactive shell in Claude jail (without running Claude)
 jail-ai agents --shell claude
 
-# Use eBPF host blocking (requires jail-ai-ebpf-loader installed)
-jail-ai create my-agent --block-host
+# eBPF host blocking is on by default (requires jail-ai-ebpf-loader installed)
+jail-ai create my-agent
 jail-ai agents claude -- chat "help me debug"
+
+# Opt out when the agent legitimately needs a host service
+jail-ai create my-agent --no-block-host
 ```
 
 ## ⚡ Performance Optimizations
@@ -260,32 +263,38 @@ jail-ai agents --isolated claude  # Uses: localhost/jail-ai-agent-claude:abc1234
 
 ### AI Agent Authentication
 
-**Default Behavior (Minimal Auth)**:
+**Default behavior**: running an agent mounts that agent's own config directory into the jail —
+automatically, with no flag needed.
 
-- `jail-ai agents claude` → Auto-mounts `~/.claude/.credentials.json` (API keys only)
-- `jail-ai agents copilot` → No auth mounted (use `--copilot-dir`)
-- `jail-ai agents cursor` → No auth mounted (use `--cursor-dir`)
-- `jail-ai agents gemini` → No auth mounted (use `--gemini-dir`)
-- `jail-ai agents codex` → No auth mounted (use `--codex-dir`)
-- `jail-ai agents jules` → No auth mounted (use `--jules-dir`)
-- `jail-ai agents opencode` → No auth mounted (use `--opencode-dir`)
-- `jail-ai agents pi` → No auth mounted (use `--pi-dir`)
+| Agent | Mounted from the host |
+|-------|------------------------|
+| `claude` | `~/.claude` |
+| `claude-code-router` | `~/.claude` and `~/.claude-code-router` |
+| `coderabbit` | `~/.coderabbit` |
+| `codex` | `~/.codex` |
+| `copilot` | `~/.config/.copilot` |
+| `cursor` | `~/.cursor` and `~/.config/cursor` |
+| `gemini` | `~/.gemini` |
+| `jules` | `~/.config/jules` |
+| `opencode` | `~/.config/opencode` |
+| `pi` | `~/.pi` |
 
-**Opt-in Mounting**:
+This is the *whole* directory, not only the credentials — for Claude Code that includes
+`settings.json`, conversation history and MCP server config. `jail-ai create` on its own mounts none
+of it.
 
-- `--claude-dir`: Mount entire `~/.claude` directory (settings, history)
-- `--copilot-dir`: Mount `~/.config/.copilot` directory
-- `--cursor-dir`: Mount `~/.cursor` and `~/.config/cursor` directories
-- `--gemini-dir`: Mount `~/.gemini` directory
-- `--codex-dir`: Mount `~/.codex` directory
-  - **First Run**: When `--codex-dir` (or `--agent-configs`) is specified and credentials are missing, automatically enters auth mode
-  - **Manual Auth**: Use `--auth` to re-authenticate or update credentials (joins running container or starts stopped one)
-- `--jules-dir`: Mount `~/.config/jules` directory
-  - **First Run**: When `--jules-dir` (or `--agent-configs`) is specified and credentials are missing, automatically enters auth mode
-  - **Manual Auth**: Use `--auth` to re-authenticate or update credentials
-- `--opencode-dir`: Mount `~/.config/opencode` directory
-- `--pi-dir`: Mount `~/.pi` directory
-- `--agent-configs`: Mount all of the above
+**`--agent-configs`**: mount *every* agent's directory instead of just the one being run.
+
+**OAuth agents** (`coderabbit`, `codex`, `jules`) use a browser flow rather than a credentials file:
+
+```bash
+jail-ai agents --auth codex        # then run: codex auth login
+```
+
+`--auth` opens a shell in the container (joining it if already running) and switches the jail to host
+networking so the redirect reaches your browser — restart without `--auth` afterwards to restore
+network isolation. jail-ai enables auth mode by itself when it sees missing or empty credentials for
+these three on first run.
 
 ### Git and GPG Configuration
 
@@ -309,7 +318,7 @@ Use `--git-gpg` flag to enable:
 
 ```bash
 # Claude with full config + git/GPG
-jail-ai agents --claude-dir --git-gpg claude -- chat "make a commit"
+jail-ai agents --git-gpg claude -- chat "make a commit"
 ```
 
 ## 🔥 eBPF Host Blocking
@@ -340,15 +349,15 @@ sudo setcap cap_bpf,cap_net_admin+ep $(which jail-ai-ebpf-loader)
 
 ### Usage
 
-Use the `--block-host` flag when creating a jail:
+Host blocking is enabled by default; pass `--no-block-host` to turn it off:
 
 ```bash
-# Create jail with host blocking
-jail-ai create my-agent --block-host
-
-# Use with AI agents
+# Host blocking is active
+jail-ai create my-agent
 jail-ai agents claude -- chat "help me debug"
-jail-ai agents --copilot-dir copilot -- suggest "write tests"
+
+# Opt out when the agent legitimately needs a host service
+jail-ai create my-agent --no-block-host
 ```
 
 ### Security Model
@@ -420,15 +429,22 @@ make build-image IMAGE_NAME=custom-name IMAGE_TAG=version
 
 ## 📚 Documentation
 
+- [docs/README.md](docs/README.md) - index of all documentation
 - [CLAUDE.md](CLAUDE.md) - Claude Code guidelines for this project
+- [docs/jail-ai.1.md](docs/jail-ai.1.md) - the man page
+- [docs/ADDING_AGENTS.md](docs/ADDING_AGENTS.md) - adding support for a new AI agent
 - [docs/cloud-layers.md](docs/cloud-layers.md) - Cloud provider layer version management and optimization
+- [docs/EBPF_SETUP.md](docs/EBPF_SETUP.md) - setting up eBPF host blocking
+- [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - common problems
 - [docs/specs/](docs/specs/) - Technical specifications and implementation details
   - [IMAGE_TAGGING_STRATEGY.md](docs/specs/IMAGE_TAGGING_STRATEGY.md) - Image naming and tagging strategy
   - [LAYERED_IMAGES_SUMMARY.md](docs/specs/LAYERED_IMAGES_SUMMARY.md) - Layered image system overview
-  - [NIX_FLAKES_SUPPORT.md](docs/specs/NIX_FLAKES_SUPPORT.md) - Nix flakes integration
+  - [UPGRADE_DETECTION_IMPLEMENTATION.md](docs/specs/UPGRADE_DETECTION_IMPLEMENTATION.md) - Outdated layer and image mismatch detection
+  - [NIX_FLAKES_SUPPORT.md](docs/specs/NIX_FLAKES_SUPPORT.md) - Nix flakes, `--nix-store` modes, host-mode security
+  - [BLOCK_HOST_USAGE.md](docs/specs/BLOCK_HOST_USAGE.md) - eBPF host blocking, on by default
+  - [EBPF_IMPLEMENTATION.md](docs/specs/EBPF_IMPLEMENTATION.md) - eBPF program and loader internals
   - [GIT_CONFIG_VERIFICATION_REPORT.md](docs/specs/GIT_CONFIG_VERIFICATION_REPORT.md) - Git config mapping details
   - [IMPLEMENTATION_SUMMARY.md](docs/specs/IMPLEMENTATION_SUMMARY.md) - Implementation details
-- [docs/](docs/) - Man pages and additional documentation
 
 ## 🎨 Shell Features
 
