@@ -1,106 +1,75 @@
 # jail-ai Documentation
 
-This directory contains the man pages for jail-ai.
+## Guides
 
-## Man Page Files
+- **[jail-ai.1.md](jail-ai.1.md)** - the man page, in markdown (see below for the groff version)
+- **[ADDING_AGENTS.md](ADDING_AGENTS.md)** - how to add support for a new AI agent
+- **[cloud-layers.md](cloud-layers.md)** - AWS/GCP layers, pinned tool versions and how to update them
+- **[cloud-layers-quick-ref.md](cloud-layers-quick-ref.md)** - condensed cheat sheet for the above
+- **[EBPF_SETUP.md](EBPF_SETUP.md)** - installing the toolchain and helper for eBPF host blocking
+- **[EBPF_SECURITY.md](EBPF_SECURITY.md)** - security architecture of the privileged helper
+- **[EBPF_HELPER_MIGRATION.md](EBPF_HELPER_MIGRATION.md)** - migrating from in-process eBPF loading
+- **[PERFORMANCE_OPTIMIZATIONS.md](PERFORMANCE_OPTIMIZATIONS.md)** - layer caching, parallel builds, prefetching
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - common problems and their causes
 
-- **jail-ai.1** - Traditional groff format man page (for `man` command)
-- **jail-ai.1.md** - Markdown version of the man page (for web viewing)
+## Design and implementation notes
 
-## Viewing Man Pages Locally
+`specs/` holds the design documents, one per feature:
 
-To preview the man page without installing it system-wide:
+- **[specs/IMAGE_TAGGING_STRATEGY.md](specs/IMAGE_TAGGING_STRATEGY.md)** - layer-based vs `--isolated` image tags
+- **[specs/LAYERED_IMAGES_SUMMARY.md](specs/LAYERED_IMAGES_SUMMARY.md)** - the layered image system
+- **[specs/UPGRADE_DETECTION_IMPLEMENTATION.md](specs/UPGRADE_DETECTION_IMPLEMENTATION.md)** - how outdated layers and image mismatches are detected
+- **[specs/NIX_FLAKES_SUPPORT.md](specs/NIX_FLAKES_SUPPORT.md)** - Nix flakes, `--nix-store` modes, host-mode security
+- **[specs/BLOCK_HOST_USAGE.md](specs/BLOCK_HOST_USAGE.md)** - eBPF host blocking, on by default
+- **[specs/EBPF_IMPLEMENTATION.md](specs/EBPF_IMPLEMENTATION.md)** - eBPF program and loader internals
+- **[specs/GIT_CONFIG_VERIFICATION_REPORT.md](specs/GIT_CONFIG_VERIFICATION_REPORT.md)** - git/GPG mapping verification
+- **[specs/IMPLEMENTATION_SUMMARY.md](specs/IMPLEMENTATION_SUMMARY.md)** - overview of the implementation
+
+## Man pages
+
+Two files, which must be kept in sync:
+
+- **jail-ai.1** - groff format, for the `man` command
+- **jail-ai.1.md** - markdown, for web viewing
+
+Preview without installing:
 
 ```bash
-# Using make
-make view-man
-
-# Or directly with man
 man ./docs/jail-ai.1
 ```
 
-## Installing Man Pages System-wide
+### Updating them
 
-To install the man page so you can access it with `man jail-ai` from anywhere:
+1. Edit **jail-ai.1** (groff)
+2. Edit **jail-ai.1.md** (markdown)
+3. Keep both in sync
+4. Update the date in the `.TH` header (groff) and the footer (markdown)
+5. Check it renders: `man ./docs/jail-ai.1`
 
-```bash
-# Install to /usr/local (default)
-sudo make install-man
+### What they document
 
-# Install to custom prefix (e.g., ~/.local)
-make install-man PREFIX=~/.local
-
-# Install with custom DESTDIR (for packaging)
-make install-man DESTDIR=/tmp/jail-ai-package
-```
-
-After installation, you can view the man page with:
-
-```bash
-man jail-ai
-```
-
-## Uninstalling Man Pages
-
-To remove the installed man page:
-
-```bash
-# Uninstall from /usr/local (default)
-sudo make uninstall-man
-
-# Uninstall from custom prefix
-make uninstall-man PREFIX=~/.local
-```
-
-## Man Page Contents
-
-The man pages document:
-
-- All commands (create, remove, status, save, claude, copilot, cursor, gemini, codex, list, clean-all, upgrade, join)
-- Global options (--verbose, --quiet)
-- Common options (--backend, --image, --mount, --env, --memory, --cpu, etc.)
-- Agent-specific options (--claude-dir, --copilot-dir, --cursor-dir, --gemini-dir, --codex-dir, --agent-configs, --git-gpg)
-- Comprehensive examples for all use cases
-- Files and directories used by jail-ai
-- Environment variables
+- All commands: `create`, `remove`, `status`, `save`, `agents`, `list`, `clean-all`, `upgrade`, `completions`
+- Global options (`--verbose`, `--quiet`)
+- Common options (`--backend`, `--image`, `--mount`, `--env`, `--memory`, `--cpu`, ...)
+- Agent options (`--agent-configs`, `--git-gpg`, `--shell`, `--auth`, `--isolated`, `--nix-store`, ...)
+- Examples, files and directories, environment variables
 - Tools available in the default image
 - Security considerations and best practices
 
-## Updating Man Pages
+Note that agent options belong **before** the agent name:
+`jail-ai agents [OPTIONS] <AGENT> [-- ARGS...]`. Anything after the agent name is passed
+through to the agent itself.
 
-When updating the man pages:
+### Groff reference
 
-1. Edit **jail-ai.1** (groff format)
-2. Edit **jail-ai.1.md** (markdown format)
-3. Keep both files in sync
-4. Update the date in the `.TH` header (groff) and footer (markdown)
-5. Test locally with `make view-man`
-6. Reinstall with `sudo make install-man` if needed
-
-## Format Reference
-
-### Groff Man Page Format
-
-The groff man page uses traditional man page macros:
-
-- `.TH` - Title header
-- `.SH` - Section header
-- `.TP` - Tagged paragraph (for options)
-- `.B` - Bold text
-- `.I` - Italic text
-- `.BR` - Bold/Roman combination
-- `.IP` - Indented paragraph
-
-### Markdown Man Page
-
-The markdown version provides a more readable format for:
-
-- GitHub/GitLab documentation viewing
-- Online documentation sites
-- Easier editing and reviewing
+- `.TH` - title header
+- `.SH` - section header
+- `.TP` - tagged paragraph (for options)
+- `.B` - bold, `.I` - italic, `.BR` - bold/roman
+- `.IP` - indented paragraph
 
 ## See Also
 
-- [CLAUDE.md](../CLAUDE.md) - Development guide and project overview
+- [CLAUDE.md](../CLAUDE.md) - development guide and project overview
+- [README.md](../README.md) - user-facing overview
 - [Project Homepage](https://github.com/cyrinux/jail-ai)
-- [Documentation](https://docs.rs/jail-ai)
