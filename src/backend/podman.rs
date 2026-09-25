@@ -66,6 +66,25 @@ fn find_host_nix_bin_dir() -> Option<PathBuf> {
         .and_then(|nix| nix.parent().map(Path::to_path_buf))
 }
 
+/// Ask the host nix-daemon whether it treats us as a trusted client.
+///
+/// Returns None when the answer cannot be determined (old nix, no daemon,
+/// unexpected output) -- in that case we stay quiet rather than guess.
+async fn host_daemon_trusts_us() -> Option<bool> {
+    let mut cmd = Command::new("nix");
+    cmd.args(["store", "info", "--json"]);
+    let out = cmd.output().await.ok()?;
+    if !out.status.success() {
+        return None;
+    }
+    let json: serde_json::Value = serde_json::from_slice(&out.stdout).ok()?;
+    let trusted = json.get("trusted")?;
+    // nix >= 2.19 reports a bool; older versions report 1/0
+    trusted
+        .as_bool()
+        .or_else(|| trusted.as_i64().map(|n| n != 0))
+}
+
 /// Build the podman arguments that provide /nix for a Nix-enabled jail
 fn nix_run_args(config: &JailConfig, base_name: &str, host: &NixHostPaths) -> Result<Vec<String>> {
     let mut args = vec![
@@ -709,6 +728,17 @@ impl JailBackend for PodmanBackend {
 
         debug!("Creating container with args: {:?}", args);
         run_command(&mut cmd).await?;
+
+        if modified_config.nix_store == NixStoreMode::Host
+            && host_daemon_trusts_us().await == Some(true)
+        {
+            warn!(
+                "--nix-store host: '{}' is a trusted client of the host nix-daemon, so it can set \
+                 substituters and build hooks and import paths into the host /nix/store. \
+                 Use --nix-store shared if the agent should not be able to do that.",
+                config.name
+            );
+        }
 
         #[cfg(target_os = "linux")]
         if config.block_host {
